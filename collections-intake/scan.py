@@ -84,15 +84,13 @@ class  FileScanner:
         aggs = [ f"---> {varId}:\n{agg}" for varId,agg in self.aggs.items() ]
         return "\n".join( aggs )
 
-    def toSTAC(self) -> Collection:
-        metadata = dict( id = self.collectionId,
-                         version="",
-                         extent="",
-                         providers="",
-                         properties=dict( ),
-                         )
-        collection = Collection( data=metadata, filename = self.basePath )
-        for agg in self.aggs.values(): collection.add_collection( agg.toSTAC() )
+    def toSTAC(self, **kwargs ) -> Collection:
+        collection = Collection.create( id = self.collectionId, root='https://hpda.{self.collectionId}', **kwargs )
+        collection.save( self.basePath )
+        for agg in self.aggs.values():
+            collection.add_collection( agg.toSTAC() )
+            for fileRec in collection.fileRecs:
+                collection.add_item( fileRec.toSTAC() )
         return collection
 
     def processPaths(self, paths: List[str], **kwargs ):
@@ -101,10 +99,14 @@ class  FileScanner:
         t0 = time.time()
         chunksize = math.ceil( len(paths) / nproc )
         if par:
+            print( f"Processing {len(paths)} p[aths with {nproc} processes.")
             with Pool(processes=nproc) as pool:
                 frecList = pool.map(FileRec, paths, chunksize)
         else:
             frecList = [ FileRec(path) for path in paths ]
+
+        t1 = time.time()
+        print(f" Completed file scan in {t1 - t0} seconds")
         for frec in frecList:
             self.varPaths.setdefault(frec.varsKey, []).append(frec)
         for varKey, frecList in self.varPaths.items():
@@ -116,7 +118,7 @@ class  FileScanner:
                 frec.setBase(base)
             agg = Aggregation(base, frecList, size)
             self.aggs[varKey] = agg
-        print(" Completed file scan in " + str(time.time() - t0) + " seconds")
+        print(" Completed generating aggregations in " + str(time.time() - t1) + " seconds")
 
     def scan( self, **kwargs ):
         glob1 =  kwargs.get( "glob" )
@@ -174,14 +176,11 @@ class Aggregation:
         dataset = Dataset(self.filePath())
         dims = { name: dim.size for name, dim in dataset.dimensions.items() }
         metadata = dict( id = os.path.dirname(self.base),
-                         version="",
+                         description="",
                          extent="",
-                         providers="",
                          properties=dict( nFiles = self.nFiles, nTs= self.nTs, paths=self.paths, vars=self.vars, dims=dims ),
                          )
         collection = Collection( data=metadata, filename = self.base )
-        for fileRec in self.fileRecs:
-            collection.add_item( fileRec.toSTAC() )
         return collection
 
     def varKey(self):
