@@ -276,7 +276,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser( description='Scan the file system to create a collection', prog="cscan" )
     parser.add_argument('collectionName', help='A name for the collection')
     parser.add_argument('-path', help='The top level (input) data directory containing all files for the collection')
-    parser.add_argument('-cpath', help='The (output) collections directory, containing the generated collection definitions, defaults to $HPDA_COLLECTIONS_DIR', default=os.environ.get('HPDA_COLLECTIONS_DIR') )
     parser.add_argument('-ext', help="The file extension for all files in the collection (used only with '-path', default: nc)", default="nc")
     parser.add_argument('-globs', help='A comma-separated list of unix file system globs for selecting files in the collection')
     parser.add_argument('-glob', help='A single unix file system glob for selecting files in the collection')
@@ -284,8 +283,9 @@ if __name__ == "__main__":
     parser.add_argument('-stac', help='Use STAC formalism', default="false")
     args = parser.parse_args()
     scanner = FileScanner( args.collectionName, **vars(args) )
-    collectionsDir = args.cpath
-    assert collectionsDir is not None, "Must set the HPDA_COLLECTIONS_DIR environment variable or use the '-cpath' argument to define the collections directory"
+    ilDataDir = os.environ.get('ILDATA')
+    assert ilDataDir is not None, "Must set the ILDATA environment variable to define the data directory"
+    collectionsDir = os.path.join( ilDataDir, "collections" )
     if args.stac:
         scanner.toSTAC().save( os.path.join( collectionsDir, "STAC", f"{args.collectionName}.json")  )
     else:
