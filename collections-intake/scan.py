@@ -42,7 +42,8 @@ class FileRec:
         self.relPath = self.path[len(base):]
 
     def toSTAC(self) -> Item:
-        metadata = dict( time_range = [ self.start_time_value, self.end_date ],
+        metadata = dict( id = os.path.basename(self.path),
+                         time_range = [ self.start_time_value, self.end_date ],
                          date_range=[self.start_date, self.end_time_value ],
                          n_time_steps = self.size,
                          time_units = self.units,
@@ -84,7 +85,7 @@ class  FileScanner:
         return "\n".join( aggs )
 
     def toSTAC(self) -> Collection:
-        metadata = dict( title = self.collectionId,
+        metadata = dict( id = self.collectionId,
                          version="",
                          extent="",
                          providers="",
@@ -172,7 +173,7 @@ class Aggregation:
     def toSTAC(self) -> Collection:
         dataset = Dataset(self.filePath())
         dims = { name: dim.size for name, dim in dataset.dimensions.items() }
-        metadata = dict( title = os.path.dirname(self.base),
+        metadata = dict( id = os.path.dirname(self.base),
                          version="",
                          extent="",
                          providers="",
