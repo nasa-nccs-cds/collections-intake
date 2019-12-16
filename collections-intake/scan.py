@@ -155,7 +155,6 @@ class  FileScanner:
                     lines.append( f"{var}, {relPath}\n")
             f.writelines(lines)
 
-# From EDAS: writeAggregation
 class Aggregation:
 
     def __init__(self, base: str, frecList: List[FileRec], nTs: int ):
