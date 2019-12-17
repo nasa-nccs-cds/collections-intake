@@ -41,8 +41,13 @@ class FileRec:
     def setBase(self, base: str ):
         self.relPath = self.path[len(base):]
 
-    def toSTAC(self) -> Item:
-        metadata = dict( id = os.path.basename(self.path),
+    def toSTAC(self, collectionDir: str ) -> Item:
+        cid = os.path.basename(self.path)
+        itemsDir =  os.path.join( collectionDir, "items" )
+        stacFile = os.path.join( itemsDir, f"{cid}.json")
+        os.makedirs( itemsDir, exist_ok=True )
+        metadata = dict( id = cid,
+                         location = self.path,
                          time_range = [ self.start_time_value, self.end_date ],
                          date_range=[self.start_date, self.end_time_value ],
                          n_time_steps = self.size,
@@ -50,7 +55,7 @@ class FileRec:
                          variables = self.vars_list,
                          calendar = self.calendar,
                          base_date = self.base_date )
-        item =  Item( data=metadata, filename = self.path )
+        item =  Item( data=metadata, filename = stacFile )
         return item
 
     def __eq__(self, other: "FileRec") -> bool:
@@ -97,9 +102,9 @@ class  FileScanner:
         collection_root_path = os.path.join( self.collectionDir, "root.json" )
         collection.save( collection_root_path )
         for agg in self.aggs.values():
-            collection.add_collection( agg.toSTAC() )
+            collection.add_collection( agg.toSTAC( self.collectionDir ) )
             for fileRec in collection.fileRecs:
-                collection.add_item( fileRec.toSTAC() )
+                collection.add_item( fileRec.toSTAC( self.collectionDir ) )
         return collection
 
     def processPaths(self, paths: List[str], **kwargs ):
@@ -185,15 +190,18 @@ class Aggregation:
         self.paths = self.partition()
         self.lines = self.process()
 
-    def toSTAC(self) -> Collection:
+    def toSTAC( self, collectionDir: str ) -> Collection:
         dataset = Dataset(self.filePath())
         dims = { name: dim.size for name, dim in dataset.dimensions.items() }
-        metadata = dict( id = os.path.dirname(self.base),
+        aid =  os.path.dirname(self.base)
+        stacFile = os.path.join( collectionDir, f"{aid}.json")
+        metadata = dict( id =aid,
                          description="",
+                         location= self.base,
                          extent="",
                          properties=dict( nFiles = self.nFiles, nTs= self.nTs, paths=self.paths, vars=self.vars, dims=dims ),
                          )
-        collection = Collection( data=metadata, filename = self.base )
+        collection = Collection( data=metadata, filename = stacFile )
         return collection
 
     def varKey(self):
