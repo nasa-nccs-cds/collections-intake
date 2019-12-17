@@ -77,8 +77,16 @@ class  FileScanner:
         self.basePath = None
         self.varPaths = {}
         self.collectionId = collectionId
+        self.collectionDir = self.createCollectionDir( collectionId )
         print( f"Running FileScanner with args: {kwargs}")
         self.scan( **kwargs )
+
+    def createCollectionDir(self, collectionId: str ):
+        ilDataDir = os.environ.get('ILDATA')
+        assert ilDataDir is not None, "Must set the ILDATA environment variable to define the data directory"
+        collectionDir = os.path.join( ilDataDir, "collections", collectionId )
+        os.makedirs( collectionDir, exist_ok=True )
+        return collectionDir
 
     def __str__(self):
         aggs = [ f"---> {varId}:\n{agg}" for varId,agg in self.aggs.items() ]
@@ -86,7 +94,8 @@ class  FileScanner:
 
     def toSTAC(self, **kwargs ) -> Collection:
         collection = Collection.create( id = self.collectionId, root='https://hpda.{self.collectionId}', **kwargs )
-        collection.save( self.basePath )
+        collection_root_path = os.path.join( self.collectionDir, "root.json" )
+        collection.save( collection_root_path )
         for agg in self.aggs.values():
             collection.add_collection( agg.toSTAC() )
             for fileRec in collection.fileRecs:
@@ -157,6 +166,10 @@ class  FileScanner:
                     relPath = os.path.splitext( os.path.relpath(aggFile, baseDir) )[0]
                     lines.append( f"{var}, {relPath}\n")
             f.writelines(lines)
+
+    def writeSTAC(self):
+        collection_file = os.path.join( self.collectionDir, f"{self.collectionId}.json" )
+        self.toSTAC().save( collection_file )
 
 class Aggregation:
 
@@ -271,7 +284,6 @@ class Aggregation:
             lines.append(f'F; {frec.start_time_value}; {frec.size}; {frec.relPath}\n')
         return lines
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser( description='Scan the file system to create a collection', prog="cscan" )
     parser.add_argument('collectionName', help='A name for the collection')
@@ -287,7 +299,7 @@ if __name__ == "__main__":
     assert ilDataDir is not None, "Must set the ILDATA environment variable to define the data directory"
     collectionsDir = os.path.join( ilDataDir, "collections" )
     if args.stac:
-        scanner.toSTAC().save( os.path.join( collectionsDir, "STAC", f"{args.collectionName}.json")  )
+        scanner.writeSTAC()
     else:
         scanner.write( collectionsDir )
 
