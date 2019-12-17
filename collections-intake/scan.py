@@ -256,7 +256,7 @@ class Aggregation:
         lines.append(f'P; time.start; {self.fileRecs[0].start_time_value}\n')
         lines.append(f'P; time.end; {self.fileRecs[-1].end_time_value}\n')
         lines.append(f'P; time.calendar; {calendar}\n')
-        self.nc_coords = { vname: dataset.variables[vname] for vname in self.nc_dims }
+        self.nc_coords = { vname: dataset.variables[vname] for vname in self.nc_dims if vname in dataset.variables }
         for attr_name in dataset.ncattrs():
             lines.append(f'P; {attr_name}; {dataset.getncattr(attr_name)}\n')
         for vname, coord in self.nc_coords.items():
