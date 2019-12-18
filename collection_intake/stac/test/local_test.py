@@ -1,4 +1,4 @@
-from collectionIntake.stac.scan import FileScanner
+from collection_intake.stac.scan import FileScanner
 
 dataPath = "/Users/tpmaxwel/Dropbox/Tom/Data/MERRA/MERRA2/6hr/"
 cid = "merra2-6hr"
