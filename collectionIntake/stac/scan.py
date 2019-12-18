@@ -48,13 +48,13 @@ class FileRec:
         os.makedirs( itemsDir, exist_ok=True )
         metadata = dict( id = cid,
                          location = self.path,
-                         time_range = [ self.start_time_value, self.end_date ],
-                         date_range=[self.start_date, self.end_time_value ],
+                         time_range = [ str(self.start_date), str(self.end_date) ],
+                         date_range=[self.start_time_value, self.end_time_value ],
                          n_time_steps = self.size,
                          time_units = self.units,
                          variables = self.vars_list,
-                         calendar = self.calendar,
-                         base_date = self.base_date )
+                         calendar = str(self.calendar),
+                         base_date = str(self.base_date ) )
         item =  Item( data=metadata, filename = stacFile )
         return item
 
@@ -98,14 +98,18 @@ class  FileScanner:
         return "\n".join( aggs )
 
     def toSTAC(self, **kwargs ) -> Collection:
-        collection = Collection.create( id = self.collectionId, root='https://hpda.{self.collectionId}', **kwargs )
+        root_collection = Collection.create( id = self.collectionId, root='https://hpda.{self.collectionId}', **kwargs )
         collection_root_path = os.path.join( self.collectionDir, "root.json" )
-        collection.save( collection_root_path )
+        root_collection.save( collection_root_path )
         for agg in self.aggs.values():
-            collection.add_collection( agg.toSTAC( self.collectionDir ) )
-            for fileRec in collection.fileRecs:
-                collection.add_item( fileRec.toSTAC( self.collectionDir ) )
-        return collection
+            sub_collection = agg.toSTAC( self.collectionDir )
+            root_collection.add_collection( sub_collection )
+            for fileRec in agg.fileRecs:
+                item: Item = fileRec.toSTAC( self.collectionDir )
+                sub_collection.add_item( item )
+                print( f"Saving item to {item.filename}")
+                item.save( item.filename )
+        return root_collection
 
     def processPaths(self, paths: List[str], **kwargs ):
         nproc = 2*mp.cpu_count()
@@ -142,13 +146,15 @@ class  FileScanner:
         path = kwargs.get("path",None)
         if path is not None:
             self.basePath = path
-            ext = kwargs.get("ext", None)
+            ext = kwargs.get( "ext", "nc" )
             if ext[0] == ".": ext = ext[1:]
             glob2 = path + "/**" if ext is None else path + "/**/*." + ext
             globs.append(glob2)
+            glob3 = path + "/*" if ext is None else path + "/*." + ext
+            globs.append(glob3)
         if len(globs) > 0:
             print( "Scanning globs:" + str(globs) )
-            paths = glob.glob( *globs, recursive=True)
+            paths = sum( [ glob.glob( path_glob, recursive=True) for path_glob in globs ], [] )
             self.basePath = os.path.dirname(os.path.commonprefix(paths))
             self.processPaths( paths, **kwargs )
         else: raise Exception( "No files found")
@@ -174,6 +180,7 @@ class  FileScanner:
 
     def writeSTAC(self):
         collection_file = os.path.join( self.collectionDir, f"{self.collectionId}.json" )
+        print( f"Writing STAC file at {collection_file}")
         self.toSTAC().save( collection_file )
 
 class Aggregation:
@@ -184,7 +191,7 @@ class Aggregation:
         self.fileRecs = frecList
         self.base = base
         self.nTs = nTs
-        self.vars = set()
+        self.vars = None
         self.nc_dims = None
         self.nc_coords = None
         self.paths = self.partition()
@@ -195,6 +202,7 @@ class Aggregation:
         dims = { name: dim.size for name, dim in dataset.dimensions.items() }
         aid =  os.path.dirname(self.base)
         stacFile = os.path.join( collectionDir, f"{aid}.json")
+        print(f"Generating STAC spec for agg {aid} at '{stacFile}'")
         metadata = dict( id =aid,
                          description="",
                          location= self.base,
@@ -279,8 +287,9 @@ class Aggregation:
                 elif lvname.startswith("lev") or lvname.startswith("plev"): ctype = "Z"
                 lines.append(f'A; {vname}; {vname}; {ctype}; {",".join(shape)}; {units}; {cdata[0]}; {cdata[-1]}\n')
         for vname in nc_vars:
+            agg_vars = set()
             if vname not in self.nc_dims:
-                self.vars.add(vname)
+                agg_vars.add(vname)
                 var: Variable = dataset.variables[vname]
                 long_name = self.attr( var, "long_name", vname )
                 comments = self.attr(var, "comments" )
@@ -288,6 +297,7 @@ class Aggregation:
                 dims = var.dimensions
                 shape = [ str(self.nTs) if dims[iDim] == "time" else str(var.shape[iDim]) for iDim in range(len(dims)) ]
                 lines.append(f'V; {vname}; {long_name}; {long_name}; {comments}; {",".join(shape)}; {m2s(resolution)}; {" ".join(dims)}; {units}\n')
+            self.vars = list( agg_vars )
         for frec in self.fileRecs:
             lines.append(f'F; {frec.start_time_value}; {frec.size}; {frec.relPath}\n')
         return lines

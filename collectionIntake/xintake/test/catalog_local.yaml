@@ -1,0 +1,89 @@
+sources:
+  netcdf:
+    args:
+      concat_dim: time
+      urlpath: /Users/tpmaxwel/Dropbox/Tom/Data/MERRA/MERRA2/6hr/*.nc4
+    description: ''
+    driver: intake_xarray.netcdf.NetCDFSource
+    metadata:
+      Comment: 'GMAO filename: d5124_m2_jan91.inst6_3d_ana_Np.20000101.nc4'
+      Contact: http://gmao.gsfc.nasa.gov
+      Conventions: CF-1
+      DataResolution: 0.5 x 0.625 (42 pressure levels)
+      EasternmostLongitude: '179.375'
+      Filename: MERRA2_200.inst6_3d_ana_Np.20000101.nc4
+      Format: NetCDF-4/HDF-5
+      GranuleID: MERRA2_200.inst6_3d_ana_Np.20000101.nc4
+      History: 'Original file generated: Mon Jan  5 06:36:59 2015 GMT'
+      Institution: NASA Global Modeling and Assimilation Office
+      LatitudeResolution: '0.5'
+      LongName: 'MERRA2 inst6_3d_ana_Np: 3d,6-Hourly,Instantaneous,Pressure-Level,Analysis,Analyzed
+        Meteorological Fields'
+      LongitudeResolution: '0.625'
+      NorthernmostLatitude: '90.0'
+      ProductionDateTime: 'Original file generated: Mon Jan  5 06:36:59 2015 GMT'
+      RangeBeginningDate: '2000-01-01'
+      RangeBeginningTime: '00:00:00.000000'
+      RangeEndingDate: '2000-01-01'
+      RangeEndingTime: '18:00:00.000000'
+      References: http://gmao.gsfc.nasa.gov
+      ShortName: M2I6NPANA
+      Source: 'CVS tag: GEOSadas-5_12_4'
+      SouthernmostLatitude: '-90.0'
+      SpatialCoverage: global
+      TemporalRange: 1980-01-01 -> 2016-12-31
+      Title: 'MERRA2 inst6_3d_ana_Np: 3d,6-Hourly,Instantaneous,Pressure-Level,Analysis,Analyzed
+        Meteorological Fields'
+      VersionID: 5.12.4
+      WesternmostLongitude: '-180.0'
+      coords: !!python/tuple
+      - lev
+      - lat
+      - lon
+      - time
+      data_vars:
+        H:
+        - lev
+        - lat
+        - lon
+        - time
+        O3:
+        - lev
+        - lat
+        - lon
+        - time
+        PS:
+        - lat
+        - lon
+        - time
+        QV:
+        - lev
+        - lat
+        - lon
+        - time
+        SLP:
+        - lat
+        - lon
+        - time
+        T:
+        - lev
+        - lat
+        - lon
+        - time
+        U:
+        - lev
+        - lat
+        - lon
+        - time
+        V:
+        - lev
+        - lat
+        - lon
+        - time
+      dims:
+        lat: 361
+        lev: 42
+        lon: 576
+        time: 12
+      identifier_product_doi: 10.5067/A7S6XP56VZWS
+      identifier_product_doi_authority: http://dx.doi.org/
