@@ -9,6 +9,8 @@ class Collection:
     def __init__( self, name: str, **kwargs ):
         self.name = name
         self.description = kwargs.get( "description", "" )
+        self.metadata = kwargs.get("metadata", {})
+        self._catalog: YAMLFileCatalog = None
 
     def generate(self, **kwargs ):
         cdir = self.getCollectionDir( **kwargs )
@@ -17,19 +19,26 @@ class Collection:
         collection = open_catalog( sub_cats )
         collection.name = self.name
         collection.description = self.description
+        collection.metadata = self.metadata
 
         with open( catalog_file, 'w' ) as f:
             yaml =  collection.yaml()
             print( f"\nWriting collection {self.name} to {catalog_file}:\n\n{yaml}")
             f.write( yaml )
 
+    def getCatalog(self, **kwargs ) -> YAMLFileCatalog:
+        if self._catalog is None:
+            cdir = self.getCollectionDir( **kwargs )
+            cat_file = os.path.join( cdir, "catalog.json")
+            print( f"Opening collection from file {cat_file}" )
+            self._catalog = intake.open_catalog( cat_file, driver="yaml_file_cat")
+            self._catalog.discover()
+        return self._catalog
+
     def open( self, **kwargs ) -> xa.Dataset:
-        cdir = self.getCollectionDir( **kwargs )
-        cat_file = os.path.join( cdir, "catalog.json")
-        print( f"Opening collection from file {cat_file}" )
-        data_source: YAMLFileCatalog = intake.open_catalog( cat_file, driver="yaml_file_cat")
-        data_source.discover()
-        ds: xa.Dataset = data_source.__getattr__(self.name).to_dask()
+        data_source: YAMLFileCatalog = self.getCatalog( **kwargs )
+        agg = kwargs.get( "agg", self.name )
+        ds: xa.Dataset = data_source.__getattr__(self.name).__getattr__(agg).to_dask()
         return ds
 
     def getCollectionDir( self, **kwargs ):
