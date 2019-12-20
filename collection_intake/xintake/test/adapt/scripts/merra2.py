@@ -13,6 +13,9 @@ for agg_dir in agg_dirs_test:
     print( f"Creating aggregation {agg_name}")
     agg_files =  f"{agg_dir}/*.nc"
     agg = Aggregation( agg_name, collection=collection_name, files=agg_files )
-    agg.printMetadata()
-#    agg.writeCatalogFile(attr = agg_attr)
+    md = agg.metadata
+    agg.description = f"{md['source']}: {md['title']}"
+    agg.version = md['creation_date']
+#    agg.printMetadata()
+    agg.writeCatalogFile()
 

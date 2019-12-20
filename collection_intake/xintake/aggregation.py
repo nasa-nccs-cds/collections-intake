@@ -1,5 +1,6 @@
 import intake, os, pprint
 from intake_xarray.netcdf import NetCDFSource
+from intake.config import conf as iconf
 from intake.catalog.local import YAMLFileCatalog
 from typing import List, Dict, Any, Sequence, BinaryIO, TextIO, ValuesView, Tuple, Optional
 import xarray as xa
@@ -58,9 +59,13 @@ class Aggregation:
         return ds
 
     def getCatalogsPath( self ):
-        ilDataDir = os.environ.get('ILDATA')
-        assert ilDataDir is not None, "Must set the ILDATA environment variable to define the data directory"
-        return os.path.join(ilDataDir, "collections" )
+        catalog_path = iconf.get( "catalog_path" )
+        if catalog_path is None:
+            ilDataDir = os.environ.get('ILDATA')
+            assert ilDataDir is not None, "Must set the ILDATA environment variable to define the data directory"
+            catalog_path = os.path.join( ilDataDir, "collections", "intake_IL" )
+        os.makedirs( catalog_path, exist_ok=True )
+        return catalog_path
 
     def close(self):
         if self.dataSource: self.dataSource.close()
