@@ -1,9 +1,10 @@
-import intake, os
+import intake, os, pprint
 from intake_xarray.netcdf import NetCDFSource
 from intake.catalog.local import YAMLFileCatalog
 from typing import List, Dict, Any, Sequence, BinaryIO, TextIO, ValuesView, Tuple, Optional
 import xarray as xa
 from intake.source.base import DataSource
+pp = pprint.PrettyPrinter(depth=4).pprint
 
 class Aggregation:
 
@@ -17,7 +18,7 @@ class Aggregation:
 
     def printMetadata(self, **kwargs):
         self.openDataSource( **kwargs )
-        print( self.dataSource.metadata )
+        pp( self.dataSource.metadata )
 
     def getCatalogFilePath( self, **kwargs ):
         agg_dir = os.path.join( kwargs.get( "path", self.getCatalogsPath() ), self.collection, self.name )
