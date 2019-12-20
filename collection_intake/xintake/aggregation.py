@@ -17,6 +17,10 @@ class Aggregation:
         self.catalog: Optional[YAMLFileCatalog] = None
         self.openDataSource( **kwargs )
 
+    @property
+    def metadata(self):
+        return self.dataSource.metadata
+
     def printMetadata(self, **kwargs):
         self.openDataSource( **kwargs )
         pp( self.dataSource.metadata )
