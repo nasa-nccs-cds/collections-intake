@@ -6,6 +6,7 @@ import os
 collection_name = "cip_merra2_mon"
 collection_root = "/nfs4m/css/curated01/create-ip/data/reanalysis/NASA-GMAO/GEOS-5/MERRA2/mon/atmos"
 agg_dirs = glob( f"{collection_root}/*" )
+catalog_files = []
 
 for agg_dir in agg_dirs:
     agg_name = os.path.basename( agg_dir )
@@ -15,6 +16,7 @@ for agg_dir in agg_dirs:
     md = agg.metadata
     agg.description = f"{md['source']}: {md['title']}"
     agg.version = md['creation_date']
-#    agg.printMetadata()
-    agg.writeCatalogFile()
+    catalog_files.append( agg.writeCatalogFile() )
+
+collection = Collection( collection_name )
 

@@ -1,21 +1,21 @@
 import intake, os
 from intake.catalog.local import YAMLFileCatalog
+from collection_intake.xintake.base import Grouping
 from intake import open_catalog
 import xarray as xa
 from glob import glob
 
-class Collection:
+class Collection(Grouping):
 
     def __init__( self, name: str, **kwargs ):
-        self.name = name
-        self.description = kwargs.get( "description", "" )
-        self.metadata = kwargs.get("metadata", {})
-        self._catalog: YAMLFileCatalog = None
+        Grouping.__init__( self, name, **kwargs )
 
     def generate(self, **kwargs ):
-        cdir = self.getCollectionDir( **kwargs )
-        catalog_file = os.path.join( cdir, "catalog.json")
-        sub_cats = glob(f"{cdir}/*/catalog.yaml")
+        cdir = self.getCatalogFilePath(**kwargs)
+        catalog_file = os.path.join(cdir, "catalog.json")
+        sub_cats = kwargs.get( 'cats' )
+        if sub_cats is None:
+            sub_cats = glob(f"{cdir}/*/catalog.yaml")
         collection = open_catalog( sub_cats )
         collection.name = self.name
         collection.description = self.description
@@ -23,12 +23,12 @@ class Collection:
 
         with open( catalog_file, 'w' ) as f:
             yaml =  collection.yaml()
-            print( f"\nWriting collection {self.name} to {catalog_file}:\n\n{yaml}")
+            print( f"\nWriting collection {self.name} to {catalog_file}")
             f.write( yaml )
 
     def getCatalog(self, **kwargs ) -> YAMLFileCatalog:
         if self._catalog is None:
-            cdir = self.getCollectionDir( **kwargs )
+            cdir = self.getCatalogFilePath( **kwargs )
             cat_file = os.path.join( cdir, "catalog.json")
             print( f"Opening collection from file {cat_file}" )
             self._catalog = intake.open_catalog( cat_file, driver="yaml_file_cat")
@@ -41,11 +41,3 @@ class Collection:
         ds: xa.Dataset = data_source.__getattr__(self.name).__getattr__(agg).to_dask()
         return ds
 
-    def getCollectionDir( self, **kwargs ):
-        coll_dir = kwargs.get("path")
-        if coll_dir == None:
-            ilDataDir = os.environ.get('ILDATA')
-            assert ilDataDir is not None, "Must set the ILDATA environment variable to define the data directory"
-            coll_dir = os.path.join(ilDataDir, "collections", self.name )
-        os.makedirs( coll_dir, exist_ok=True )
-        return coll_dir

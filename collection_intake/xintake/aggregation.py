@@ -2,19 +2,19 @@ import intake, os, pprint
 from intake_xarray.netcdf import NetCDFSource
 from intake.config import conf as iconf
 from intake.catalog.local import YAMLFileCatalog
+from collection_intake.xintake.base import Grouping
 from typing import List, Dict, Any, Sequence, BinaryIO, TextIO, ValuesView, Tuple, Optional
 import xarray as xa
 from intake.source.base import DataSource
 pp = pprint.PrettyPrinter(depth=4).pprint
 
-class Aggregation:
+class Aggregation(Grouping):
 
     def __init__( self, name: str, **kwargs ):
-        self.name = name
+        Grouping.__init__( self, name, **kwargs )
         self.files = kwargs.get( "files", None )
         self.collection = kwargs.get( "collection", self.name )
         self.dataSource: Optional[DataSource] = None
-        self.catalog: Optional[YAMLFileCatalog] = None
         self.openDataSource( **kwargs )
 
     @property
@@ -24,12 +24,6 @@ class Aggregation:
     def printMetadata(self, **kwargs):
         self.openDataSource( **kwargs )
         pp( self.dataSource.metadata )
-
-    def getCatalogFilePath( self, **kwargs ):
-        agg_dir = os.path.join( kwargs.get( "path", self.getCatalogsPath() ), self.collection, self.name )
-        agg_catalog_file = os.path.join( agg_dir, "catalog.yaml")
-        os.makedirs( agg_dir, exist_ok=True )
-        return agg_catalog_file
 
     def openDataSource( self, **kwargs ):
         if (self.dataSource is None) and kwargs.get( 'open', True ):
@@ -44,14 +38,18 @@ class Aggregation:
         attr_value = self.dataSource.metadata.get(value[1:], "") if value.startswith('@') else value
         setattr( self.dataSource, key, attr_value)
 
-    def writeCatalogFile(self, **kwargs):
+    def getCatalogFilePath( self, **kwargs ):
+        return Grouping.getCatalogFilePath( collection=self.collection, **kwargs )
+
+    def writeCatalogFile(self, **kwargs) -> str:
         self.openDataSource( **kwargs )
         catalog_file = self.getCatalogFilePath( **kwargs )
 
         with open( catalog_file, 'w' ) as f:
             yaml =  self.dataSource.yaml()
-            print( f"\nWriting aggregation {self.name} to {catalog_file}:\n\n{yaml}")
+            print( f"Writing aggregation {self.name} to {catalog_file}")
             f.write( yaml )
+        return catalog_file
 
     def openFromCatalog(self, **kwargs) -> xa.Dataset:
         if self.catalog is None:
@@ -62,23 +60,9 @@ class Aggregation:
         ds: xa.Dataset = getattr( self.catalog, self.name ).to_dask()
         return ds
 
-    def getCatalogsPath( self ):
-        catalog_paths = iconf.get( "catalog_path" )
-        if catalog_paths is None:
-            ilDataDir = os.environ.get('ILDATA')
-            assert ilDataDir is not None, "Must set the ILDATA environment variable to define the data directory"
-            catalog_path = os.path.join( ilDataDir, "collections", "intake_IL" )
-        else:
-            catalog_path = catalog_paths[0]
-        os.makedirs( catalog_path, exist_ok=True )
-        return catalog_path
-
     def close(self):
+        Grouping.close(self)
         if self.dataSource: self.dataSource.close()
-        if self.catalog:    self.catalog.close()
-
-    def __del__(self):
-        self.close()
 
 if __name__ == "__main__":
     files_glob = '/Users/tpmaxwel/Dropbox/Tom/Data/MERRA/MERRA2/6hr/*.nc4'
