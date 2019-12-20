@@ -2,6 +2,11 @@ import intake, os
 from intake_xarray.netcdf import NetCDFSource
 from intake.catalog.local import YAMLFileCatalog
 import xarray as xa
+from intake.source.base import DataSource
+
+def set_cat_attr( cat_source: DataSource, key: str, value: str ):
+    attr_value =  cat_source.metadata.get( value[1:], "") if value.startswith('@') else value
+    setattr(cat_source, key, attr_value )
 
 class Aggregation:
 
@@ -19,7 +24,8 @@ class Aggregation:
     def generate(self, **kwargs ):
         cat_source: NetCDFSource = intake.open_netcdf( self.files, concat_dim="time" )
         cat_source.discover()
-        cat_source.description = kwargs.get( 'description', cat_source.metadata.get( 'LongName', cat_source.metadata.get( 'Title', "") ) ).replace("\n"," ")
+        attrs = kwargs.get("attrs",{})
+        for key,value in attrs.elems(): set_cat_attr( cat_source, key, value  )
         cat_source.name = kwargs.get( 'name', self.name )
         catalog_file = self.getCatalogFilePath( **kwargs )
 
@@ -33,7 +39,7 @@ class Aggregation:
         print( f"Opening aggregation from file {cat_file}" )
         data_source: YAMLFileCatalog = intake.open_catalog( cat_file, driver="yaml_file_cat")
         data_source.discover()
-        ds: xa.Dataset = data_source.__getattr__(self.name).to_dask()
+        ds: xa.Dataset = getattr( data_source, self.name ).to_dask()
         return ds
 
     def getCatalogsPath( self ):
