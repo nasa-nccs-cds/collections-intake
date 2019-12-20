@@ -63,11 +63,13 @@ class Aggregation:
         return ds
 
     def getCatalogsPath( self ):
-        catalog_path = iconf.get( "catalog_path" )
-        if catalog_path is None:
+        catalog_paths = iconf.get( "catalog_path" )
+        if catalog_paths is None:
             ilDataDir = os.environ.get('ILDATA')
             assert ilDataDir is not None, "Must set the ILDATA environment variable to define the data directory"
             catalog_path = os.path.join( ilDataDir, "collections", "intake_IL" )
+        else:
+            catalog_path = catalog_paths[0]
         os.makedirs( catalog_path, exist_ok=True )
         return catalog_path
 
