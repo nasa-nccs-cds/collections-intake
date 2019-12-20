@@ -5,8 +5,7 @@ import os
 
 collection_name = "cip_merra2_mon"
 collection_root = "/nfs4m/css/curated01/create-ip/data/reanalysis/NASA-GMAO/GEOS-5/MERRA2/mon/atmos"
-agg_dirs = f"{collection_root}/*"
-print( f"Creating aggregations using glob: {agg_dirs}")
+agg_dirs = glob( f"{collection_root}/*" )
 agg_dirs_test = [ agg_dirs[0] ]
 
 for agg_dir in glob( agg_dirs_test ):
