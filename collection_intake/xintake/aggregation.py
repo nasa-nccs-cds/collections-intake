@@ -2,11 +2,10 @@ import intake, os, pprint
 from intake_xarray.netcdf import NetCDFSource
 from intake.config import conf as iconf
 from intake.catalog.local import YAMLFileCatalog
-from collection_intake.xintake.base import Grouping
+from collection_intake.xintake.base import Grouping, pp
 from typing import List, Dict, Any, Sequence, BinaryIO, TextIO, ValuesView, Tuple, Optional
 import xarray as xa
 from intake.source.base import DataSource
-pp = pprint.PrettyPrinter(depth=4).pprint
 
 class Aggregation(Grouping):
 
