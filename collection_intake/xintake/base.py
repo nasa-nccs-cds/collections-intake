@@ -7,7 +7,7 @@ pp = pprint.PrettyPrinter(depth=4).pprint
 
 class Grouping:
 
-    def __init__( self, name: str, **kwargs ):
+    def __init__( self, name: str = "root", **kwargs ):
         self.name = name
         self.description = kwargs.get( "description", "" )
         self.metadata = kwargs.get( "metadata", {} )
@@ -18,12 +18,15 @@ class Grouping:
 
     def getCatalogFilePath( self, **kwargs ):
         collection = kwargs.get( 'collection' )
-        root = kwargs.get( "path", self.getCatalogsPath() )
-        path_nodes = [ root, collection, self.name ] if collection else  [ root, self.name ]
-        agg_dir = os.path.join( *path_nodes )
-        agg_catalog_file = os.path.join( agg_dir, "catalog.yaml")
-        os.makedirs( agg_dir, exist_ok=True )
-        return agg_catalog_file
+        root_dir = kwargs.get( "path", self.getCatalogsPath() )
+        if self.name == "root":
+            cat_dir = root_dir
+        else:
+            path_nodes = [ root_dir, collection, self.name ] if collection else  [ root_dir, self.name ]
+            cat_dir = os.path.join( *path_nodes )
+        catalog_file = os.path.join( cat_dir, "catalog.yaml")
+        os.makedirs( cat_dir, exist_ok=True )
+        return catalog_file
 
     def getCatalogsPath( self ):
         catalog_paths = iconf.get( "catalog_path" )

@@ -7,7 +7,7 @@ from glob import glob
 
 class Collection(Grouping):
 
-    def __init__( self, name: str, **kwargs ):
+    def __init__( self, name: str = "root", **kwargs ):
         Grouping.__init__( self, name, **kwargs )
 
     def generate(self, **kwargs ):

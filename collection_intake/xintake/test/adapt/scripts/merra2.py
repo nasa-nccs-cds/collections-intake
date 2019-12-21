@@ -19,4 +19,8 @@ for agg_dir in agg_dirs:
     catalog_files.append( agg.writeCatalogFile() )
 
 collection = Collection( collection_name )
+collection.generate( cats = catalog_files )
+
+root_collection = Collection(  )
+root_collection.generate(  )
 
