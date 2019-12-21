@@ -27,6 +27,7 @@ class Aggregation(Grouping):
             self.dataSource.discover()
             attrs = kwargs.get("attrs",{})
             for key,value in attrs.items(): self.setSourceAttr( key, value  )
+            self.dataSource.name = f"{kwargs.get('name', self.name)}-netcdf"
 
     def getMetadata(self) -> Dict:
         return self.dataSource.metadata

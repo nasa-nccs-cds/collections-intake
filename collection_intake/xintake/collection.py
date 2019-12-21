@@ -14,7 +14,7 @@ class Collection(Grouping):
     def generate(self, **kwargs ):
         catalog_file = self.getCatalogFilePath(**kwargs)
         cat_items = kwargs.get( 'cats' )
-        if cat_items is None:
+        if cat_items:
             cdir = os.path.dirname( catalog_file )
             cat_items = glob(f"{cdir}/*/catalog.yaml")
         print( f"Opening collection {self.name} with items:\n" ); pp( cat_items )
