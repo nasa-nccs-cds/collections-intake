@@ -1,7 +1,8 @@
 from glob import glob
 from collection_intake.xintake.aggregation import Aggregation
 from collection_intake.xintake.collection import Collection
-import os
+import os, intake
+print( f"Intake drivers: {list(intake.registry)}" )
 
 collection_name = "cip_merra2_mon"
 collection_root = "/nfs4m/css/curated01/create-ip/data/reanalysis/NASA-GMAO/GEOS-5/MERRA2/mon/atmos"
