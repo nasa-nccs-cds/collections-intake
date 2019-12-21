@@ -8,10 +8,10 @@ pp = pprint.PrettyPrinter(depth=4).pprint
 class Grouping:
 
     def __init__( self, name: str = "root", **kwargs ):
+        self.catalog: Optional[YAMLFileCatalog] = None
         self.name = name
         self.description = kwargs.get( "description", "" )
         self.metadata = kwargs.get( "metadata", {} )
-        self.catalog: Optional[YAMLFileCatalog] = None
 
     def printMetadata(self):
         pp( self.metadata )
