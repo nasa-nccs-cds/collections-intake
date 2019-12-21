@@ -1,6 +1,6 @@
 import intake, os, pprint, warnings
 from intake.config import conf as iconf
-from intake.catalog.local import YAMLFileCatalog
+from intake.catalog.local import Catalog
 from typing import List, Dict, Any, Sequence, BinaryIO, TextIO, ValuesView, Tuple, Optional
 import xarray as xa
 pp = pprint.PrettyPrinter(depth=4).pprint
@@ -9,7 +9,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 class Grouping:
 
     def __init__( self, name: str = "root", **kwargs ):
-        self.catalog: Optional[YAMLFileCatalog] = None
+        self.catalog: Optional[Catalog] = None
         self.name = name
         self.description = kwargs.get( "description", "" )
         self.metadata = kwargs.get( "metadata", {} )

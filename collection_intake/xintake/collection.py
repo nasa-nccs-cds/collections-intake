@@ -1,5 +1,5 @@
 import intake, os, pprint
-from intake.catalog.local import YAMLFileCatalog
+from intake.catalog.local import YAMLFileCatalog, YAMLFilesCatalog
 from collection_intake.xintake.base import Grouping
 from intake import open_catalog
 import xarray as xa
@@ -18,24 +18,25 @@ class Collection(Grouping):
         if cat_items is None:
             cat_items = glob(f"{cdir}/*/catalog.yaml")
         print( f"Opening collection {self.name} with items:\n" ); pp( cat_items )
-        collection = open_catalog( cat_items, driver="yaml_files_cat" )
-        collection.name = self.name
-        collection.description = self.description
-        collection.metadata = self.metadata
+ #       catalogs: YAMLFilesCatalog = intake.open_catalog( cat_items, driver="yaml_files_cat" )
+        catalogs: YAMLFilesCatalog = YAMLFilesCatalog( cat_items )
+        catalogs.name = self.name
+        catalogs.description = self.description
+        catalogs.metadata = self.metadata
 
         with open( catalog_file, 'w' ) as f:
-            yaml =  collection.yaml()
+            yaml =  catalogs.yaml()
             print( f"\nWriting collection {self.name} to {catalog_file}")
             f.write( yaml )
 
     def getCatalog(self, **kwargs ) -> YAMLFileCatalog:
-        if self._catalog is None:
+        if self.catalog is None:
             cdir = self.getCatalogFilePath( **kwargs )
             cat_file = os.path.join( cdir, "catalog.json")
             print( f"Opening collection from file {cat_file}" )
-            self._catalog = intake.open_catalog( cat_file, driver="yaml_file_cat")
-            self._catalog.discover()
-        return self._catalog
+            self.catalog = intake.open_catalog( cat_file, driver="yaml_file_cat")
+            self.catalog.discover()
+        return self.catalog
 
     def open( self, **kwargs ) -> xa.Dataset:
         data_source: YAMLFileCatalog = self.getCatalog( **kwargs )
