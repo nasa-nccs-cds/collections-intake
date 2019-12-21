@@ -19,7 +19,7 @@ class Collection(Grouping):
             cat_items = glob(f"{cdir}/*/catalog.yaml")
         print( f"Opening collection {self.name} with items:\n" ); pp( cat_items )
  #       catalogs: YAMLFilesCatalog = intake.open_catalog( cat_items, driver="yaml_files_cat" )
-        catalogs: YAMLFilesCatalog = YAMLFilesCatalog( cat_items )
+        catalogs: YAMLFilesCatalog = YAMLFilesCatalog( [ cat_items[0] ] )
         catalogs.name = self.name
         catalogs.description = self.description
         catalogs.metadata = self.metadata
