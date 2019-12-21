@@ -12,10 +12,10 @@ class Collection(Grouping):
         Grouping.__init__( self, name, **kwargs )
 
     def generate(self, **kwargs ):
-        cdir = self.getCatalogFilePath(**kwargs)
-        catalog_file = os.path.join(cdir, "catalog.json")
+        catalog_file = self.getCatalogFilePath(**kwargs)
         cat_items = kwargs.get( 'cats' )
         if cat_items is None:
+            cdir = os.path.dirname( catalog_file )
             cat_items = glob(f"{cdir}/*/catalog.yaml")
         print( f"Opening collection {self.name} with items:\n" ); pp( cat_items )
  #       catalogs: YAMLFilesCatalog = intake.open_catalog( cat_items, driver="yaml_files_cat" )
