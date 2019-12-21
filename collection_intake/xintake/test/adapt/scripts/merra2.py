@@ -13,7 +13,7 @@ for agg_dir in agg_dirs:
     print( f"Creating aggregation {agg_name}")
     agg_files =  f"{agg_dir}/*.nc"
     agg = Aggregation( agg_name, collection=collection_name, files=agg_files )
-    md = agg.metadata
+    md = agg.getMetadata()
     agg.description = f"{md['source']}: {md['title']}"
     agg.version = md['creation_date']
     catalog_files.append( agg.writeCatalogFile() )
