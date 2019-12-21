@@ -13,10 +13,11 @@ class Collection(Grouping):
     def generate(self, **kwargs ):
         cdir = self.getCatalogFilePath(**kwargs)
         catalog_file = os.path.join(cdir, "catalog.json")
-        sub_cats = kwargs.get( 'cats' )
-        if sub_cats is None:
-            sub_cats = glob(f"{cdir}/*/catalog.yaml")
-        collection = open_catalog( sub_cats )
+        cat_items = kwargs.get( 'cats' )
+        if cat_items is None:
+            cat_items = glob(f"{cdir}/*/catalog.yaml")
+        print( f"Opening collection {self.name} with items: {cat_items}")
+        collection = open_catalog( cat_items )
         collection.name = self.name
         collection.description = self.description
         collection.metadata = self.metadata
