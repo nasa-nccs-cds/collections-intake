@@ -32,7 +32,6 @@ class Aggregation(Grouping):
             self.dataSource.discover()
             attrs = kwargs.get("attrs",{})
             for key,value in attrs.items(): self.setSourceAttr( key, value  )
-            self.dataSource.name = kwargs.get( 'name', self.name )
 
     def setSourceAttr( self, key: str, value: str):
         attr_value = self.dataSource.metadata.get(value[1:], "") if value.startswith('@') else value
