@@ -28,6 +28,7 @@ class Aggregation(Grouping):
             attrs = kwargs.get("attrs",{})
             for key,value in attrs.items(): self.setSourceAttr( key, value  )
             self.dataSource.name = f"{kwargs.get('name', self.name)}"
+            self.dataSource.metadata = str_dict( self.dataSource.metadata )
 
     def getMetadata(self) -> Dict:
         return self.dataSource.metadata
