@@ -6,7 +6,7 @@ print( f"Intake drivers: {list(intake.registry)}" )
 
 collection_name = "cip_merra2_mon"
 collection_root = "/nfs4m/css/curated01/create-ip/data/reanalysis/NASA-GMAO/GEOS-5/MERRA2/mon"
-agg_dirs = glob( f"{collection_root}/*" )
+agg_dirs = glob( f"{collection_root}/*/*" )
 catalog_files = []
 
 for agg_dir in agg_dirs:
