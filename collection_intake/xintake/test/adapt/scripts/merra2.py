@@ -12,7 +12,7 @@ catalog_files = []
 for agg_dir in agg_dirs:
     agg_name = os.path.basename( agg_dir )
     print( f"Creating aggregation {agg_name}")
-    agg_files =  f"{agg_dir}/*/*.nc"
+    agg_files =  f"{agg_dir}/*.nc"
     agg = Aggregation( agg_name, collection=collection_name, files=agg_files )
     md = agg.getMetadata()
     agg.description = f"{md['source']}: {md['title']}"
