@@ -1,10 +1,9 @@
 import intake, os, pprint
 from intake.catalog.local import YAMLFileCatalog, YAMLFilesCatalog
-from collection_intake.xintake.base import Grouping
+from collection_intake.xintake.base import Grouping, pp, str_dict
 from intake import open_catalog
 import xarray as xa
 from glob import glob
-pp = pprint.PrettyPrinter(depth=4).pprint
 
 class Collection(Grouping):
 
@@ -18,14 +17,11 @@ class Collection(Grouping):
             cdir = os.path.dirname( catalog_file )
             cat_items = glob(f"{cdir}/*/catalog.yaml")
         print( f"Opening collection {self.name} with items:\n" ); pp( cat_items )
- #       catalogs: YAMLFilesCatalog = intake.open_catalog( cat_items, driver="yaml_files_cat" )
-        my_cats = [ cat_items[7] ]
-        print( "MY CATS")
-        pp( my_cats )
-        catalogs: YAMLFilesCatalog = YAMLFilesCatalog( my_cats  )
+        catalogs: YAMLFilesCatalog = intake.open_catalog( cat_items, driver="yaml_files_cat" )
+#        catalogs: YAMLFilesCatalog = YAMLFilesCatalog( my_cats  )
         catalogs.name = self.name
         catalogs.description = self.description
-        catalogs.metadata = self.metadata
+        catalogs.metadata = str_dict(self.metadata)
 
         with open( catalog_file, 'w' ) as f:
             yaml =  catalogs.yaml()

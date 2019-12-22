@@ -5,6 +5,7 @@ from typing import List, Dict, Any, Sequence, BinaryIO, TextIO, ValuesView, Tupl
 import xarray as xa
 pp = pprint.PrettyPrinter(depth=4).pprint
 warnings.simplefilter(action='ignore', category=FutureWarning)
+def str_dict( x: Dict ) -> Dict: return { str(key): str(value) for key,value in x.items() }
 
 class Grouping:
 

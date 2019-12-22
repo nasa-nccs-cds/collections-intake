@@ -2,7 +2,7 @@ import intake, os, pprint
 from intake_xarray.netcdf import NetCDFSource
 from intake.config import conf as iconf
 from intake.catalog.local import YAMLFileCatalog
-from collection_intake.xintake.base import Grouping, pp
+from collection_intake.xintake.base import Grouping, pp, str_dict
 from typing import List, Dict, Any, Sequence, BinaryIO, TextIO, ValuesView, Tuple, Optional
 import xarray as xa
 from intake.source.base import DataSource
@@ -27,14 +27,14 @@ class Aggregation(Grouping):
             self.dataSource.discover()
             attrs = kwargs.get("attrs",{})
             for key,value in attrs.items(): self.setSourceAttr( key, value  )
-            self.dataSource.name = f"{kwargs.get('name', self.name)}-netcdf"
+            self.dataSource.name = f"{kwargs.get('name', self.name)}"
 
     def getMetadata(self) -> Dict:
         return self.dataSource.metadata
 
     def setSourceAttr( self, key: str, value: str):
         attr_value = self.dataSource.metadata.get(value[1:], "") if value.startswith('@') else value
-        setattr( self.dataSource, key, attr_value)
+        setattr( self.dataSource, key, str(attr_value) )
 
     def getCatalogFilePath( self, **kwargs ):
         return Grouping.getCatalogFilePath( self, collection=self.collection, **kwargs )
