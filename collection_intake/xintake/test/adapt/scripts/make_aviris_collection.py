@@ -12,7 +12,7 @@ catalog_files = []
 
 for agg_name, agg_dir in aggs.items():
     print( f"Creating aggregation {agg_name}")
-    agg_files =  f"{agg_dir}/ang*rfl/ang*/*_img"
+    agg_files =  glob( f"{agg_dir}/ang*rfl/ang*/*_img" )
     print( "Got Aviris files: ")
     pp( agg_files )
 
