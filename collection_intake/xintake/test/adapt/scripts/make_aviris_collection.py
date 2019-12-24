@@ -10,9 +10,9 @@ collection_root = "/att/pubrepo/ABoVE/archived_data/ORNL/ABoVE_Airborne_AVIRIS_N
 aggs = dict( ang_rfl_v2r2 = f"{collection_root}/data/ang*rfl/ang*_rfl_v2r2/*_img" )
 catalog_files = []
 
-for agg_name, agg_dir in aggs.items():
+for agg_name, agg_files_glob in aggs.items():
     print( f"Creating aggregation {agg_name}")
-    agg_files =  glob( f"{agg_dir}/ang*rfl/ang*/*_img" )
+    agg_files =  glob( agg_files_glob )
     print( "Got Aviris files: ")
     pp( agg_files )
 
