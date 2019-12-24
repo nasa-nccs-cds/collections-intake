@@ -1,6 +1,7 @@
 from glob import glob
 from collection_intake.xintake.aggregation import Aggregation
 from collection_intake.xintake.collection import Collection
+from collection_intake.xintake.base import Grouping, pp
 import os, intake
 print( f"Intake drivers: {list(intake.registry)}" )
 
@@ -12,6 +13,8 @@ catalog_files = []
 for agg_name, agg_dir in aggs.items():
     print( f"Creating aggregation {agg_name}")
     agg_files =  f"{agg_dir}/ang*rfl/ang*/*_img"
+    print( "Got Aviris files: ")
+    pp( agg_files )
 
     source: intake.DataSource = intake.open_rasterio(agg_files, concat_dim="time")
     source.discover()
