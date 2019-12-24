@@ -16,7 +16,7 @@ for agg_name, agg_files_glob in aggs.items():
     print( "Got Aviris files: ")
     pp( agg_files )
 
-    source: intake.DataSource = intake.open_rasterio(agg_files, concat_dim="time")
+    source: intake.DataSource = intake.open_rasterio(agg_files, chunks = {}, concat_dim="time")
     source.discover()
     print( source.shape )
 
