@@ -7,7 +7,7 @@ print( f"Intake drivers: {list(intake.registry)}" )
 
 collection_name = "ORNL_ABoVE_Airborne_AVIRIS_NG"
 collection_root = "/att/pubrepo/ABoVE/archived_data/ORNL/ABoVE_Airborne_AVIRIS_NG/"
-aggs = dict( ang_rfl_v2r2 = f"{collection_root}/data/ang*rfl/ang*_rfl_v2r2/*_img" )
+aggs = dict( ang_rfl_v2r2 = f"{collection_root}/data/ang*/ang*_rdn_v2r2/*_img" )
 catalog_files = []
 
 for agg_name, agg_files_glob in aggs.items():
