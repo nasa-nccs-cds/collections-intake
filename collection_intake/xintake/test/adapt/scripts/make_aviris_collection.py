@@ -11,7 +11,7 @@ def get_time( fname: str )-> str:
     time_end = time_start + 15
     timeval: str = fname[time_start:time_end]
     tval = parse( timeval.replace( "t", " " ) )
-    print( f"{timeval}: {fname}")
+    print( f"{timeval} ({tval}): {fname}")
     return timeval
 
 collection_name = "ORNL_ABoVE_Airborne_AVIRIS_NG"
