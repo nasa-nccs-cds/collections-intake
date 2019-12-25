@@ -2,13 +2,15 @@ from glob import glob
 from collection_intake.xintake.aggregation import Aggregation
 from collection_intake.xintake.collection import Collection
 from collection_intake.xintake.base import Grouping, pp
+from dateutil.parser import parse
 import os, intake
 print( f"Intake drivers: {list(intake.registry)}" )
 
 def get_time( fname: str )-> str:
     time_start = len(collection_root) + 9
     time_end = time_start + 15
-    timeval = fname[time_start:time_end]
+    timeval: str = fname[time_start:time_end]
+    tval = parse( timeval.replace( "t", " " ) )
     print( f"{timeval}: {fname}")
     return timeval
 
