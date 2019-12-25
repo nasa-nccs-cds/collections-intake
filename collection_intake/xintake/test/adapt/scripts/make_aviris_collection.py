@@ -5,16 +5,23 @@ from collection_intake.xintake.base import Grouping, pp
 import os, intake
 print( f"Intake drivers: {list(intake.registry)}" )
 
+def get_time( fname: str )-> str:
+    time_start = len(collection_root) + 9
+    time_end = time_start + 15
+    timeval = fname[time_start:time_end]
+    print( f"{timeval}: {fname}")
+    return timeval
+
 collection_name = "ORNL_ABoVE_Airborne_AVIRIS_NG"
-collection_root = "/att/pubrepo/ABoVE/archived_data/ORNL/ABoVE_Airborne_AVIRIS_NG/"
+collection_root = "/att/pubrepo/ABoVE/archived_data/ORNL/ABoVE_Airborne_AVIRIS_NG"
 aggs = dict( ang_rfl_v2r2 = f"{collection_root}/data/ang*/ang*_rdn_v2r2/*_img" )
 catalog_files = []
 
 for agg_name, agg_files_glob in aggs.items():
     print( f"Creating aggregation {agg_name}")
     agg_files =  glob( agg_files_glob )
-    print( "Got Aviris files: ")
-    pp( agg_files )
+    print( "Got Aviris files: " )
+    agg_file_dict = { get_time(agg_file): agg_file for agg_file in aggs }
 
     source: intake.DataSource = intake.open_rasterio(agg_files, chunks = {}, concat_dim="time")
     source.discover()
