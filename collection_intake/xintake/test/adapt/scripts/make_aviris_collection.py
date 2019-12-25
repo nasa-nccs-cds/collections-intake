@@ -21,7 +21,7 @@ for agg_name, agg_files_glob in aggs.items():
     print( f"Creating aggregation {agg_name}")
     agg_files =  glob( agg_files_glob )
     print( "Got Aviris files: " )
-    agg_file_dict = { get_time(agg_file): agg_file for agg_file in aggs }
+    agg_file_dict = { get_time(agg_file): agg_file for agg_file in agg_files }
 
     source: intake.DataSource = intake.open_rasterio(agg_files, chunks = {}, concat_dim="time")
     source.discover()
