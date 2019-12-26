@@ -22,13 +22,14 @@ class Aggregation(Grouping):
 
     def getDataSource(self, **kwargs ) -> DataSource:
         cdim = kwargs.get("concat_dim", "time")
-        return intake.open_netcdf( self.files, concat_dim=cdim )
+        datasource = intake.open_netcdf( self.files, concat_dim=cdim )
+        datasource.discover()
+        return datasource
 
     def openDataSource( self, **kwargs ):
         if (self.dataSource is None) and kwargs.get( 'open', True ):
             self.dataSource: DataSource = self.getDataSource( **kwargs )
             if self.dataSource is not None:
-                self.dataSource.discover()
                 attrs = kwargs.get("attrs",{})
                 for key,value in attrs.items(): self.setSourceAttr( key, value  )
                 self.dataSource.name = f"{kwargs.get('name', self.name)}"
