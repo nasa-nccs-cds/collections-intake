@@ -23,9 +23,11 @@ ordered_files = OrderedDict()
 for agg_name, agg_files_glob in aggs.items():
     print( f"Creating aggregation {agg_name}")
     agg_files =  glob( agg_files_glob )
+    cutoff_time = parse( "20180815t222106")
     print( "Got Aviris files: " )
-    agg_file_dict = OrderedDict( [ ( get_time(agg_file), agg_file ) for agg_file in agg_files ] )
-    pp( agg_file_dict.keys() )
+    dict_entries = [ ( get_time(agg_file), agg_file ) for agg_file in agg_files ]
+    filtered_dict_entries = [ ( agg_time, agg_file ) for ( agg_time, agg_file ) in agg_files if agg_time < cutoff_time ]
+    agg_file_dict = OrderedDict( filtered_dict_entries )
 
     source: intake.DataSource = intake.open_rasterio( agg_file_dict.values(), chunks = {}, concat_dim="time" )
     source.discover()
