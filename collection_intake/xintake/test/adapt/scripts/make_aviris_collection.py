@@ -9,7 +9,7 @@ import xarray as xa
 import os, intake
 print( f"Intake drivers: {list(intake.registry)}" )
 
-def get_time( fname: str ):
+def get_time( fname: str, as_str: bool  = False ):
     time_start = len(collection_root) + 9
     time_end = time_start + 15
     timeval: str = fname[time_start:time_end]
@@ -19,8 +19,10 @@ def get_time( fname: str ):
 def is_valid( aviris_file: str ):
     try:
         result: xa.DataArray = xa.open_rasterio(aviris_file)
+        print(f"Adding Aviris File({get_time(aviris_file)}): {result.shape}")
         return True
     except Exception:
+        print( f"Rejected invalid file {aviris_file}")
         return False
 
 collection_name = "ORNL_ABoVE_Airborne_AVIRIS_NG"
