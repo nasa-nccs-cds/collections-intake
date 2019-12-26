@@ -4,6 +4,7 @@ from collection_intake.xintake.collection import Collection
 from collection_intake.xintake.base import Grouping, pp
 from collections import OrderedDict
 from dateutil.parser import parse
+from collection_intake.xintake.sources.aviris import AvirisDataSource
 import xarray as xa
 import os, intake
 print( f"Intake drivers: {list(intake.registry)}" )
@@ -35,7 +36,8 @@ for agg_name, agg_files_glob in aggs.items():
     agg_files_dict = { get_time(agg_file): agg_file for agg_file in valid_agg_files }
 
     print( f"Creating aggregation {agg_name}")
-    source: intake.DataSource = intake.open_rasterio( agg_files_dict.values(), chunks = {}, concat_dim="time" )
+#    source: intake.DataSource = intake.open_rasterio( agg_files_dict.values(), chunks = {}, concat_dim="time" )
+    source: intake.DataSource = AvirisDataSource( agg_files_dict.values(), chunks = {}, concat_dim="time" )
     source.discover()
     print( source.shape )
 
