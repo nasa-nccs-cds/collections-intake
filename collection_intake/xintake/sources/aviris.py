@@ -54,7 +54,7 @@ class AvirisDataSource(DataSourceMixin, PatternMixin):
         else:
             _open_dataset = xr.open_dataset
 
-        self._ds = _open_dataset(url, chunks=self.chunks, **kwargs)
+        self._ds = _open_dataset(url, chunks=self.chunks, engine="rasterio", **kwargs)
 
     def _add_path_to_ds(self, ds):
         """Adding path info to a coord for a particular file
