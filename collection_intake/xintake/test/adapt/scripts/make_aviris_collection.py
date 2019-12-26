@@ -4,6 +4,7 @@ from collection_intake.xintake.collection import Collection
 from collection_intake.xintake.base import Grouping, pp
 from collections import OrderedDict
 from dateutil.parser import parse
+import xarray as xa
 import os, intake
 print( f"Intake drivers: {list(intake.registry)}" )
 
@@ -11,8 +12,15 @@ def get_time( fname: str ):
     time_start = len(collection_root) + 9
     time_end = time_start + 15
     timeval: str = fname[time_start:time_end]
-    tval = parse( timeval.replace( "t", " " ) )
+    tval = parse( timeval ) # .replace( "t", " " ) )
     return tval
+
+def is_valid( aviris_file: str ):
+    try:
+        result: xa.DataArray = xa.open_rasterio(aviris_file)
+        return True
+    except Exception:
+        return False
 
 collection_name = "ORNL_ABoVE_Airborne_AVIRIS_NG"
 collection_root = "/att/pubrepo/ABoVE/archived_data/ORNL/ABoVE_Airborne_AVIRIS_NG"
@@ -21,22 +29,15 @@ catalog_files = []
 
 ordered_files = OrderedDict()
 for agg_name, agg_files_glob in aggs.items():
-    print( f"Creating aggregation {agg_name}")
     agg_files =  glob( agg_files_glob )
-    cutoff_time = parse( "20180815t222106")
-    print( "Got Aviris files: " )
-    agg_files_dict = { get_time(agg_file): agg_file for agg_file in agg_files }
-    times = list( agg_files_dict.keys() )
-    times.sort()
-    pp(times )
+    print( f"Validating aggregation files for {agg_name}")
+    valid_agg_files = [ agg_file for agg_file in agg_files if is_valid(agg_file) ]
+    agg_files_dict = { get_time(agg_file): agg_file for agg_file in valid_agg_files }
 
-
-    # filtered_dict_entries = [ ( agg_time, agg_file ) for ( agg_time, agg_file ) in dict_entries if agg_time < cutoff_time ]
-    # agg_file_dict = OrderedDict( filtered_dict_entries )
-    # pp( list( agg_file_dict.keys() ) )
-    # source: intake.DataSource = intake.open_rasterio( agg_file_dict.values(), chunks = {}, concat_dim="time" )
-    # source.discover()
-    # print( source.shape )
+    print( f"Creating aggregation {agg_name}")
+    source: intake.DataSource = intake.open_rasterio( agg_files_dict.values(), chunks = {}, concat_dim="time" )
+    source.discover()
+    print( source.shape )
 
 #    agg = Aggregation( agg_name, collection=collection_name, files=agg_files )
 #    md = agg.getMetadata()
