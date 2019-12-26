@@ -28,6 +28,7 @@ for agg_name, agg_files_glob in aggs.items():
     dict_entries = [ ( get_time(agg_file), agg_file ) for agg_file in agg_files ]
     filtered_dict_entries = [ ( agg_time, agg_file ) for ( agg_time, agg_file ) in dict_entries if agg_time < cutoff_time ]
     agg_file_dict = OrderedDict( filtered_dict_entries )
+    pp( list( agg_file_dict.keys() ) )
 
     source: intake.DataSource = intake.open_rasterio( agg_file_dict.values(), chunks = {}, concat_dim="time" )
     source.discover()
