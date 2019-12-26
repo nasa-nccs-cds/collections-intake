@@ -14,7 +14,7 @@ class AvirisFileCatEntry(Aggregation):
 
     def getDataSource(self, **kwargs ) -> DataSource:
         try:
-            intake.open_rasterio( self.files[0], chunks={} )
+           return intake.open_rasterio( self.files[0], chunks={} )
         except Exception as err:
             print( f"Error opening Aviris file (skipping): {self.files[0]}: {err}")
             return None
