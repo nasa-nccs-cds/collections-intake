@@ -36,8 +36,8 @@ for agg_name, agg_files_glob in aggs.items():
     agg_files_dict = { get_time(agg_file): agg_file for agg_file in valid_agg_files }
 
     print( f"Creating aggregation {agg_name}")
-#    source: intake.DataSource = intake.open_rasterio( agg_files_dict.values(), chunks = {}, concat_dim="time" )
-    source: intake.DataSource = AvirisDataSource( list(agg_files_dict.values()), chunks = {}, concat_dim="time" )
+    source: intake.DataSource = intake.open_rasterio( list(agg_files_dict.values()), chunks = {}, concat_dim="time" )
+#    source: intake.DataSource = AvirisDataSource( list(agg_files_dict.values()), chunks = {}, concat_dim="time" )
     source.discover()
     print( source.shape )
 
