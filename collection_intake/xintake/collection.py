@@ -29,6 +29,7 @@ class Collection(Grouping):
             yaml =  catalogs.yaml()
             print( f"\nWriting collection {self.name} to {catalog_file}")
             f.write( yaml )
+        return catalog_file
 
     def getCatalog(self, **kwargs ) -> YAMLFileCatalog:
         if self.catalog is None:

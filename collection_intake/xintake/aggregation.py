@@ -20,15 +20,19 @@ class Aggregation(Grouping):
         self.openDataSource( **kwargs )
         pp( self.dataSource.metadata )
 
+    def getDataSource(self, **kwargs ) -> DataSource:
+        cdim = kwargs.get("concat_dim", "time")
+        return intake.open_netcdf( self.files, concat_dim=cdim )
+
     def openDataSource( self, **kwargs ):
         if (self.dataSource is None) and kwargs.get( 'open', True ):
-            cdim = kwargs.get( "concat_dim", "time")
-            self.dataSource: NetCDFSource = intake.open_netcdf( self.files, concat_dim=cdim )
-            self.dataSource.discover()
-            attrs = kwargs.get("attrs",{})
-            for key,value in attrs.items(): self.setSourceAttr( key, value  )
-            self.dataSource.name = f"{kwargs.get('name', self.name)}"
-            self.dataSource.metadata = str_dict( self.dataSource.metadata )
+            self.dataSource: DataSource = self.getDataSource( **kwargs )
+            if self.dataSource is not None:
+                self.dataSource.discover()
+                attrs = kwargs.get("attrs",{})
+                for key,value in attrs.items(): self.setSourceAttr( key, value  )
+                self.dataSource.name = f"{kwargs.get('name', self.name)}"
+                self.dataSource.metadata = str_dict( self.dataSource.metadata )
 
     def getMetadata(self) -> Dict:
         return self.dataSource.metadata
@@ -40,8 +44,9 @@ class Aggregation(Grouping):
     def getCatalogFilePath( self, **kwargs ):
         return Grouping.getCatalogFilePath( self, collection=self.collection, **kwargs )
 
-    def writeCatalogFile(self, **kwargs) -> str:
+    def writeCatalogFile(self, **kwargs) -> Optional[str]:
         self.openDataSource( **kwargs )
+        if self.dataSource is None: return None
         catalog_file = self.getCatalogFilePath( **kwargs )
 
         with open( catalog_file, 'w' ) as f:
