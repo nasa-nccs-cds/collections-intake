@@ -18,15 +18,17 @@ class Grouping:
     def printMetadata(self):
         pp( self.metadata )
 
-    def getCatalogFilePath( self, path_nodes: List[str], **kwargs ):
-        root_dir = kwargs.get( "base", self.getCatalogsPath() )
+    @classmethod
+    def getCatalogFilePath( cls, path_nodes: List[str], **kwargs ):
+        root_dir = kwargs.get( "base", cls.getCatalogsPath() )
         name = kwargs.get( "name", "catalog" )
         cat_dir = os.path.join( root_dir, *path_nodes )
         catalog_file = os.path.join( cat_dir, f"{name}.yaml" )
         os.makedirs( cat_dir, exist_ok=True )
         return catalog_file
 
-    def getCatalogsPath( self ):
+    @classmethod
+    def getCatalogsPath( cls ):
         catalog_paths = iconf.get( "catalog_path" )
         if catalog_paths is None:
             ilDataDir = os.environ.get('ILDATA')
@@ -36,6 +38,11 @@ class Grouping:
             catalog_path = catalog_paths[0]
         os.makedirs( catalog_path, exist_ok=True )
         return catalog_path
+
+    @classmethod
+    def getBaseCatalog(cls):
+        cats_dir = cls.getCatalogsPath()
+        return os.path.join( cats_dir, "catalog.yaml" )
 
     def close(self):
         if self.catalog:  self.catalog.close()
