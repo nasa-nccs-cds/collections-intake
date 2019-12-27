@@ -14,7 +14,8 @@ class Collection(Grouping):
         Grouping.__init__( self, name, **kwargs )
 
     def generate(self, **kwargs ):
-        catalog_file = self.getCatalogFilePath(**kwargs)
+        cat_nodes = kwargs.get("cat_nodes", [] if self.name == "root" else [ self.name ] )
+        catalog_file = self.getCatalogFilePath( cat_nodes, **kwargs )
         cat_items = kwargs.get( 'cats' )
         if not cat_items:
             cdir = os.path.dirname( catalog_file )

@@ -43,7 +43,8 @@ class Aggregation(Grouping):
         setattr( self.dataSource, key, str(attr_value) )
 
     def getCatalogFilePath( self, **kwargs ):
-        return Grouping.getCatalogFilePath( self, collection=self.collection, **kwargs )
+        cat_nodes = kwargs.get( "cat_nodes", [ self.collection, self.name ] )
+        return Grouping.getCatalogFilePath( self, cat_nodes, **kwargs )
 
     def writeCatalogFile(self, **kwargs) -> Optional[str]:
         self.openDataSource( **kwargs )
