@@ -27,8 +27,8 @@ for agg_name, agg_files_glob in aggregations.items():
             cat_files.append( cat_file )
 
     collection = Collection( agg_name, description=f"ORNL ABoVE Airborne AVIRIS NG: {agg_name}" )
-    sub_collections.append( collection.generate( cats = cat_files ) )
+    sub_collections.append( collection.generate( cat_nodes=[ collection_name, agg_name ], cats = cat_files ) )
 
 root_collection = Collection( description="ORNL ABoVE Airborne AVIRIS NG" )
-root_collection.generate( cats=sub_collections )
+root_collection.generate( cat_nodes=[ collection_name ], cats=sub_collections )
 
