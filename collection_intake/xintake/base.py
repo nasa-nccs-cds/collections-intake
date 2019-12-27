@@ -42,8 +42,13 @@ class Grouping:
     @classmethod
     def getBaseCatalog(cls, catalog_path: List[str] = None ) :
         cats_dir = cls.getCatalogsPath()
-        cat_file_path = [ "catalog.yaml" ] if catalog_path is None else [ *catalog_path, "catalog.yaml"  ]
-        return os.path.join( cats_dir,  *cat_file_path )
+        cat_file_path = [ cats_dir ]
+        if catalog_path is not None:
+            if isinstance(catalog_path, list):
+                cat_file_path.extend( catalog_path )
+            else:
+                cat_file_path.append( catalog_path )
+        return os.path.join(  *cat_file_path, "catalog.yaml"  )
 
     def close(self):
         if self.catalog:  self.catalog.close()
