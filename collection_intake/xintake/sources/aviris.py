@@ -21,7 +21,3 @@ class AvirisFileCatEntry(Aggregation):
         except Exception as err:
             print( f"Error opening Aviris file (skipping): {self.files[0]}: {err}")
             return None
-
-    def getCatalogFilePath( self, **kwargs ):
-        cat_nodes = kwargs.get("cat_nodes", [self.collection, self.name])
-        return Grouping.getCatalogFilePath( self, cat_nodes, name=self.name, **kwargs )

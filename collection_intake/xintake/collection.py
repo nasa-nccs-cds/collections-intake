@@ -15,7 +15,7 @@ class Collection(Grouping):
 
     def generate(self, **kwargs ):
         cat_nodes = kwargs.get("cat_nodes", [] if self.name == "root" else [ self.name ] )
-        catalog_file = self.getCatalogFilePath( cat_nodes, **kwargs )
+        catalog_file = Grouping.getCatalogFilePath( cat_nodes, **kwargs )
         cat_items = kwargs.get( 'cats' )
         if not cat_items:
             cdir = os.path.dirname( catalog_file )
@@ -34,7 +34,8 @@ class Collection(Grouping):
 
     def getCatalog(self, **kwargs ) -> YAMLFileCatalog:
         if self.catalog is None:
-            cdir = self.getCatalogFilePath( **kwargs )
+            cat_nodes = kwargs.get("cat_nodes", [] if self.name == "root" else [self.name])
+            cdir = Grouping.getCatalogFilePath( cat_nodes, **kwargs )
             cat_file = os.path.join( cdir, "catalog.json")
             print( f"Opening collection from file {cat_file}" )
             self.catalog = intake.open_catalog( cat_file, driver="yaml_file_cat")
@@ -53,7 +54,8 @@ class SourceCollection(Grouping):
         Grouping.__init__( self, name, **kwargs )
 
     def generate(self, aggs: Dict[str,DataSource], **kwargs ):
-        catalog_file = self.getCatalogFilePath(**kwargs)
+        cat_nodes = kwargs.get("cat_nodes", [])
+        catalog_file = Grouping.getCatalogFilePath( cat_nodes, **kwargs )
         print( f"Opening collection {self.name} with aggs:\n" ); pp( aggs.keys() )
         catalog: Catalog = Catalog.from_dict( aggs, name=self.name, description=self.description, metadata=str_dict(self.metadata)  )
 
@@ -64,7 +66,8 @@ class SourceCollection(Grouping):
 
     def getCatalog(self, **kwargs ) -> YAMLFileCatalog:
         if self.catalog is None:
-            cdir = self.getCatalogFilePath( **kwargs )
+            cat_nodes = kwargs.get("cat_nodes", [])
+            cdir = Grouping.getCatalogFilePath( cat_nodes, **kwargs )
             cat_file = os.path.join( cdir, "catalog.json")
             print( f"Opening collection from file {cat_file}" )
             self.catalog = intake.open_catalog( cat_file, driver="yaml_file_cat")

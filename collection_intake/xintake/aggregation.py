@@ -42,14 +42,10 @@ class Aggregation(Grouping):
         attr_value = self.dataSource.metadata.get(value[1:], "") if value.startswith('@') else value
         setattr( self.dataSource, key, str(attr_value) )
 
-    def getCatalogFilePath( self, **kwargs ):
-        cat_nodes = kwargs.get( "cat_nodes", [ self.collection, self.name ] )
-        return Grouping.getCatalogFilePath( self, cat_nodes, **kwargs )
-
     def writeCatalogFile(self, **kwargs) -> Optional[str]:
         self.openDataSource( **kwargs )
         if self.dataSource is None: return None
-        catalog_file = self.getCatalogFilePath( **kwargs )
+        catalog_file = Grouping.getCatalogFilePath( [], **kwargs )
 
         with open( catalog_file, 'w' ) as f:
             yaml =  self.dataSource.yaml()
@@ -59,7 +55,7 @@ class Aggregation(Grouping):
 
     def openFromCatalog(self, **kwargs) -> xa.Dataset:
         if self.catalog is None:
-            cat_file = self.getCatalogFilePath( **kwargs )
+            cat_file = Grouping.getCatalogFilePath( [], **kwargs )
             print( f"Opening aggregation from file {cat_file}" )
             self.catalog: YAMLFileCatalog = intake.open_catalog( cat_file, driver="yaml_file_cat")
             self.catalog.discover()
