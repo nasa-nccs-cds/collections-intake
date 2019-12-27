@@ -40,9 +40,10 @@ class Grouping:
         return catalog_path
 
     @classmethod
-    def getBaseCatalog(cls):
+    def getBaseCatalog(cls, catalog_path = None ) :
         cats_dir = cls.getCatalogsPath()
-        return os.path.join( cats_dir, "catalog.yaml" )
+        cat_path = catalog_path.append( "catalog.yaml" ) if catalog_path else [ "catalog.yaml" ]
+        return os.path.join( cats_dir,  *cat_path )
 
     def close(self):
         if self.catalog:  self.catalog.close()
