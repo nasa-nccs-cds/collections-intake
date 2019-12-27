@@ -32,9 +32,9 @@ class Grouping:
 
     def getCatalogFilePath( self, path_nodes: List[str], **kwargs ):
         root_dir = kwargs.get( "base", self.getCatalogsPath() )
-        name = kwargs.get( "name", "catalog.yaml" )
+        name = kwargs.get( "name", "catalog" )
         cat_dir = os.path.join( root_dir, *path_nodes )
-        catalog_file = os.path.join( cat_dir, name )
+        catalog_file = os.path.join( cat_dir, f"{name}.yaml" )
         os.makedirs( cat_dir, exist_ok=True )
         return catalog_file
 
