@@ -43,9 +43,10 @@ class Aggregation(Grouping):
         setattr( self.dataSource, key, str(attr_value) )
 
     def writeCatalogFile(self, **kwargs) -> Optional[str]:
+        cat_nodes = kwargs.get("cat_nodes", [ self.collection, self.name ] )
         self.openDataSource( **kwargs )
         if self.dataSource is None: return None
-        catalog_file = Grouping.getCatalogFilePath( [], **kwargs )
+        catalog_file = Grouping.getCatalogFilePath( cat_nodes, **kwargs )
 
         with open( catalog_file, 'w' ) as f:
             yaml =  self.dataSource.yaml()
