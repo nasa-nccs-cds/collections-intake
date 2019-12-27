@@ -20,8 +20,8 @@ for agg_name, agg_files_glob in aggregations.items():
     agg_files =  glob( agg_files_glob )
     cat_files = []
     for data_file in agg_files:
-        time = get_time(data_file)
-        entry = AvirisFileCatEntry( str(time), f"{agg_name}_{time}", collection_name, data_file )
+        fileId = get_time(data_file)
+        entry = AvirisFileCatEntry( fileId, collection_name, data_file )
         cat_file = entry.writeCatalogFile( cat_nodes=[ collection_name, agg_name ] )
         if cat_file is not None:
             cat_files.append( cat_file )
