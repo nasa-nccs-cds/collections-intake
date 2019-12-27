@@ -29,7 +29,7 @@ class Grouping:
 
     @classmethod
     def getCatalogsPath( cls ):
-        catalog_paths = iconf.get( "catalog_path" )
+        catalog_paths = iconf.get( "catalog_path"  )
         if catalog_paths is None:
             ilDataDir = os.environ.get('ILDATA')
             assert ilDataDir is not None, "Must set the ILDATA environment variable to define the data directory"
