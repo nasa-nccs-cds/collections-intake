@@ -18,18 +18,6 @@ class Grouping:
     def printMetadata(self):
         pp( self.metadata )
 
-    def getCatalogFilePath1( self, **kwargs ):
-        collection = kwargs.get( 'collection' )
-        root_dir = kwargs.get( "path", self.getCatalogsPath() )
-        if self.name == "root":
-            cat_dir = root_dir
-        else:
-            path_nodes = [ root_dir, collection, self.name ] if collection else  [ root_dir, self.name ]
-            cat_dir = os.path.join( *path_nodes )
-        catalog_file = os.path.join( cat_dir, "catalog.yaml")
-        os.makedirs( cat_dir, exist_ok=True )
-        return catalog_file
-
     def getCatalogFilePath( self, path_nodes: List[str], **kwargs ):
         root_dir = kwargs.get( "base", self.getCatalogsPath() )
         name = kwargs.get( "name", "catalog" ).replace( " ", "_" ).replace( ":", "-" )

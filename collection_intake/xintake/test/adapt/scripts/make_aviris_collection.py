@@ -21,7 +21,7 @@ for agg_name, agg_files_glob in aggregations.items():
     cat_files = []
     for data_file in agg_files:
         time = get_time(data_file)
-        entry = AvirisFileCatEntry( str(time), agg_name, collection_name, data_file )
+        entry = AvirisFileCatEntry( str(time), f"{agg_name}_{time}", collection_name, data_file )
         cat_file = entry.writeCatalogFile()
         if cat_file is not None:
             cat_files.append( cat_file )
