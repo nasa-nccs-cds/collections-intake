@@ -108,15 +108,18 @@ class Grouping:
         files = source_file_globs if isinstance(source_file_globs,list) else [ source_file_globs ]
         aggFilesList: List[Union[str,List[str]]] = [ globs(files) ] if "concat_dim" in kwargs else globs(files)
         for aggFiles in aggFilesList:
-            dataSource = self._createDataSource( aggFiles, **kwargs )
-            self._initDataSource( dataSource, **kwargs )
+            try:
+                dataSource = self._createDataSource( aggFiles, **kwargs )
+                self._initDataSource( dataSource, **kwargs )
+                self._addToCatalog(dataSource)
+            except Exception as err:
+                print( f"Error loading data file(s) {aggFiles}: {err} ")
         self._catalog.save(self.getURI( **kwargs ) )
 
     def _createDataSource(self, files: Union[str,List[str]], **kwargs) -> DataSource:
         from intake.source import registry
         driver = kwargs.get("driver", "netcdf")
         dataSource = registry[ driver ]( files, **kwargs )
-        self._addToCatalog( dataSource  )
         return dataSource
 
     def _initDataSource(self, dataSource: DataSource, **kwargs ):
