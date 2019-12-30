@@ -58,7 +58,9 @@ class Grouping:
     def _initCatalog(self, **kwargs):
         cat_uri = self.getURI(**kwargs)
         self._catalog: YAMLFileCatalog = intake.open_catalog( cat_uri, driver="yaml_file_cat", autoreload=False )
-        if os.path.isfile( cat_uri ): self._catalog.discover()
+        if os.path.isfile( cat_uri ):
+            self._catalog.force_reload()
+            self._catalog.discover()
         description = kwargs.get( "description", None )
         metadata = kwargs.get( "metadata", None )
         if description: self._catalog.description = description
