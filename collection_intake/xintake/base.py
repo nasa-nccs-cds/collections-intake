@@ -22,7 +22,7 @@ class Grouping:
         self._catalog: Optional[Catalog] = None
         self._path_nodes: List[str] = path_nodes
         self._catalog_driver = kwargs.get("driver", "yaml_file_cat")
-        self._catalog: Catalog = self.initCatalog(**kwargs)
+        self._catalog: YAMLFileCatalog = self.initCatalog(**kwargs)
 
     @classmethod
     def getCatalogBase(cls, **kwargs) -> "Grouping":
@@ -53,14 +53,13 @@ class Grouping:
         if kwargs.get('save',False):
             self._catalog.save( self.getURI(**kwargs) )
 
-    def initCatalog(self, **kwargs ) -> Catalog:
+    def initCatalog(self, **kwargs ) -> YAMLFileCatalog:
         cat_uri = self.getURI(**kwargs)
         if os.path.isfile( cat_uri ):
-            catalog: Catalog = intake.open_catalog(cat_uri, driver=self._catalog_driver)
+            catalog: YAMLFileCatalog = intake.open_catalog( cat_uri, driver="yaml_file_cat" )
             catalog.discover()
         else:
-            from intake.source import registry
-            catalog: Catalog = registry[self._catalog_driver](**kwargs)
+            catalog: YAMLFileCatalog = YAMLFileCatalog( cat_uri, autoreload=False )
         description = kwargs.get( "description", None )
         metadata = kwargs.get( "metadata", None )
         if description: catalog.description = description
