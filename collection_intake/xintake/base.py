@@ -23,8 +23,7 @@ class Grouping:
     def __init__( self, path_nodes: List[str], **kwargs ):
         self._catalog: Optional[Catalog] = None
         self._path_nodes: List[str] = path_nodes
-        self._catalog_driver = kwargs.get("driver", "yaml_file_cat")
-        self._catalog: YAMLFileCatalog = self.initCatalog(**kwargs)
+        self.initCatalog(**kwargs)
 
     @classmethod
     def getCatalogBase(cls, **kwargs) -> "Grouping":
@@ -62,30 +61,14 @@ class Grouping:
 
     def initCatalog(self, **kwargs ) -> YAMLFileCatalog:
         cat_uri = self.getURI(**kwargs)
-        catalog: YAMLFileCatalog = intake.open_catalog( cat_uri, driver="yaml_file_cat", autoreload=False )
-        if os.path.isfile( cat_uri ): catalog.discover()
+        self._catalog: YAMLFileCatalog = intake.open_catalog( cat_uri, driver="yaml_file_cat", autoreload=False )
+        if os.path.isfile( cat_uri ): self._catalog.discover()
         description = kwargs.get( "description", None )
         metadata = kwargs.get( "metadata", None )
-        if description: catalog.description = description
-        if metadata: catalog.metadata = metadata
-        catalog.name = self.name
-        catalog.save( cat_uri )
-        return catalog
-
-    def initCatalog1(self, **kwargs ) -> YAMLFileCatalog:
-        cat_uri = self.getURI(**kwargs)
-        if os.path.isfile( cat_uri ):
-            catalog: YAMLFileCatalog = intake.open_catalog( cat_uri, driver="yaml_file_cat", autoreload=False )
-            catalog.discover()
-        else:
-            catalog: YAMLFileCatalog = YAMLFileCatalog( cat_uri, autoreload=False )
-        description = kwargs.get( "description", None )
-        metadata = kwargs.get( "metadata", None )
-        if description: catalog.description = description
-        if metadata: catalog.metadata = metadata
-        catalog.name = self.name
-        catalog.save( cat_uri )
-        return catalog
+        if description: self._catalog.description = description
+        if metadata: self._catalog.metadata = metadata
+        self._catalog.name = self.name
+        self.save( cat_uri, **kwargs )
 
     def getURI ( self, **kwargs ):
         base_uri = kwargs.get( "base", self.getIntakeURI())
@@ -134,7 +117,12 @@ class Grouping:
                 self._addToCatalog(dataSource)
             except Exception as err:
                 print( f" ** Skipped loading the data file(s) {aggFiles}:\n     --> Due to Error: {err} ")
-        self._catalog.save(self.getURI( **kwargs ) )
+        self.save( **kwargs )
+
+    def save( self, cat_uri=None,  **kwargs ):
+        catUri = cat_uri if cat_uri else self.getURI(**kwargs)
+        print( f"Catalog {self.name} saving to: {catUri}")
+        self._catalog.save(catUri)
 
     def _createDataSource(self, files: Union[str,List[str]], **kwargs) -> DataSource:
         from intake.source import registry

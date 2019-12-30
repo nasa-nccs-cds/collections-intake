@@ -13,6 +13,6 @@ MERRA_cat = reanalysis_cat.addSubGroup( "MERRA", description="MERRA collections"
 cip_merra2_mon_cat = MERRA_cat.addSubGroup( "cip_merra2_mon", description="MERRA2 monthly means reprocessed for CreateIP" )
 
 for agg_dir in agg_dirs:
-    print( f"Adding cip_merra2_mon aggregation for data path {agg_dir}")
+    print( f"Adding aggregation data source to collection cip_merra2_mon for data path {agg_dir}")
     cip_merra2_mon_cat.addDataSources( f"{agg_dir}/*.nc", driver="netcdf", concat_dim="time", chunks={} )
 
