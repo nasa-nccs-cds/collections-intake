@@ -23,7 +23,7 @@ class Grouping:
     def __init__( self, path_nodes: List[str], **kwargs ):
         self._catalog: Optional[Catalog] = None
         self._path_nodes: List[str] = path_nodes
-        self.initCatalog(**kwargs)
+        self._initCatalog(**kwargs)
 
     @classmethod
     def getCatalogBase(cls, **kwargs) -> "Grouping":
@@ -51,15 +51,11 @@ class Grouping:
         return subGroup
 
     def _addToCatalog(self, source: DataSource, **kwargs ):
-        if self._catalog_driver == "yaml_file_cat":
-            yaml_file_cat: YAMLFileCatalog = self._catalog
-            yaml_file_cat.add( source )
-        else:
-            raise Exception(f"Unrecognized driver: {self._catalog_driver}")
+        self._catalog.add( source )
         if kwargs.get('save',False):
             self._catalog.save( self.getURI(**kwargs) )
 
-    def initCatalog(self, **kwargs ) -> YAMLFileCatalog:
+    def _initCatalog(self, **kwargs):
         cat_uri = self.getURI(**kwargs)
         self._catalog: YAMLFileCatalog = intake.open_catalog( cat_uri, driver="yaml_file_cat", autoreload=False )
         if os.path.isfile( cat_uri ): self._catalog.discover()
