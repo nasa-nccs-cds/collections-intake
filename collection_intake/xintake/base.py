@@ -79,12 +79,12 @@ class Grouping:
     @classmethod
     def getIntakeURI(cls) -> str:
         catalog_paths = iconf.get( "catalog_path"  )
-        if catalog_paths is None:
+        if catalog_paths:
+            catalog_path = catalog_paths[0]
+        else:
             ilDataDir = os.environ.get('ILDATA')
             assert ilDataDir is not None, "Must set the ILDATA environment variable to define the data directory"
             catalog_path = os.path.join( ilDataDir, "collections", "intake" )
-        else:
-            catalog_path = catalog_paths[0]
         os.makedirs( catalog_path, exist_ok=True )
         return catalog_path
 
