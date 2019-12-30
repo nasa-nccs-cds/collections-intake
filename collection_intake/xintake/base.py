@@ -36,12 +36,17 @@ class Grouping:
         return self._path_nodes[-1] if self._path_nodes else "root"
 
     @property
+    def catPath(self) -> str:
+        return "/".join(self._path_nodes)
+
+    @property
     def catalog(self) -> Catalog:
         return self._catalog
 
     def addSubGroup(self, name: str, **kwargs ) -> "Grouping":
         subGroup: Grouping =  Grouping( self._path_nodes + [name], **kwargs )
         self._addToCatalog( subGroup.catalog )
+        print( f"Added Catalog: {self.catPath}" )
         return subGroup
 
     def _addToCatalog(self, source: DataSource, **kwargs ):
@@ -54,6 +59,18 @@ class Grouping:
             self._catalog.save( self.getURI(**kwargs) )
 
     def initCatalog(self, **kwargs ) -> YAMLFileCatalog:
+        cat_uri = self.getURI(**kwargs)
+        catalog: YAMLFileCatalog = intake.open_catalog( cat_uri, driver="yaml_file_cat", autoreload=False )
+        if os.path.isfile( cat_uri ): catalog.discover()
+        description = kwargs.get( "description", None )
+        metadata = kwargs.get( "metadata", None )
+        if description: catalog.description = description
+        if metadata: catalog.metadata = metadata
+        catalog.name = self.name
+        catalog.save( cat_uri )
+        return catalog
+
+    def initCatalog1(self, **kwargs ) -> YAMLFileCatalog:
         cat_uri = self.getURI(**kwargs)
         if os.path.isfile( cat_uri ):
             catalog: YAMLFileCatalog = intake.open_catalog( cat_uri, driver="yaml_file_cat", autoreload=False )
@@ -111,9 +128,10 @@ class Grouping:
             try:
                 dataSource = self._createDataSource( aggFiles, **kwargs )
                 self._initDataSource( dataSource, **kwargs )
+                print(f"Adding DataSource to catalog {self.name}: {aggFiles}")
                 self._addToCatalog(dataSource)
             except Exception as err:
-                print( f"Error loading data file(s) {aggFiles}: {err} ")
+                print( f" ** Skipped loading the data file(s) {aggFiles}:\n     --> Due to Error: {err} ")
         self._catalog.save(self.getURI( **kwargs ) )
 
     def _createDataSource(self, files: Union[str,List[str]], **kwargs) -> DataSource:
