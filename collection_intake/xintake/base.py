@@ -119,7 +119,7 @@ class Grouping:
     def _createDataSource(self, files: Union[str,List[str]], **kwargs) -> DataSource:
         from intake.source import registry
         driver = kwargs.get("driver", "netcdf")
-        dataSource = registry[ driver ]( files, **kwargs )
+        dataSource = registry[ driver ]( files, force_reload=False, **kwargs )
         return dataSource
 
     def _initDataSource(self, dataSource: DataSource, **kwargs ):
