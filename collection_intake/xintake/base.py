@@ -60,7 +60,7 @@ class Grouping:
             catalog.discover()
         else:
             from intake.source import registry
-            catalog: Catalog = registry[self._catalog_driver](cat_uri, **kwargs)
+            catalog: Catalog = registry[self._catalog_driver](**kwargs)
         description = kwargs.get( "description", None )
         metadata = kwargs.get( "metadata", None )
         if description: catalog.description = description
