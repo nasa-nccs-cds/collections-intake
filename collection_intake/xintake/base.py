@@ -10,15 +10,23 @@ pp = pprint.PrettyPrinter(depth=4).pprint
 warnings.simplefilter(action='ignore', category=FutureWarning)
 def str_dict( x: Dict ) -> Dict: return { str(key): str(value) for key,value in x.items() }
 
+def globs( globList: List[str] ) -> List[str]:
+    fileList = []
+    for filesGlob in globList:
+        fileList.extend( glob( filesGlob ) )
+    return fileList
+
 class Grouping:
 
     def __init__( self, path_nodes: List[str], **kwargs ):
         self._catalog: Optional[Catalog] = None
         self._path_nodes: List[str] = path_nodes
-        self._files: List[str] = kwargs.get('files',None)
-        self._driver = kwargs.get( "driver", "yaml_file_cat" )
-        self._source = kwargs.get("driver", "yaml_file_cat")
+        self._catalog_driver = kwargs.get("driver", "yaml_file_cat")
         self._catalog: Catalog = self.initCatalog(**kwargs)
+
+    @classmethod
+    def getCatalogBase(cls, **kwargs) -> "Grouping":
+        return Grouping( [], **kwargs )
 
     def printMetadata(self):
         pp( self._catalog.metadata )
@@ -36,21 +44,23 @@ class Grouping:
         self._addToCatalog( subGroup.catalog )
         return subGroup
 
-    def _addToCatalog(self, source: DataSource ):
-        if self._driver == "yaml_file_cat":
+    def _addToCatalog(self, source: DataSource, **kwargs ):
+        if self._catalog_driver == "yaml_file_cat":
             yaml_file_cat: YAMLFileCatalog = self._catalog
             yaml_file_cat.add( source )
         else:
-            raise Exception( f"Unrecognized driver: {self._driver}")
+            raise Exception(f"Unrecognized driver: {self._catalog_driver}")
+        if kwargs.get('save',False):
+            self._catalog.save( self.getURI(**kwargs) )
 
     def initCatalog(self, **kwargs ) -> Catalog:
         cat_uri = self.getURI(**kwargs)
         if os.path.isfile( cat_uri ):
-            catalog: Catalog = intake.open_catalog(cat_uri, driver=self._driver)
+            catalog: Catalog = intake.open_catalog(cat_uri, driver=self._catalog_driver)
             catalog.discover()
         else:
             from intake.source import registry
-            catalog: Catalog = registry[self._driver]( cat_uri, **kwargs )
+            catalog: Catalog = registry[self._catalog_driver](cat_uri, **kwargs)
         description = kwargs.get( "description", None )
         metadata = kwargs.get( "metadata", None )
         if description: catalog.description = description
@@ -95,42 +105,29 @@ class Grouping:
     def __del__(self):
         self.close()
 
-    def addFileCollection(self, name: str, files: Union[str,List[str]], **kwargs ) -> "Grouping":
-        fileList = files if isinstance(files,list) else [ files ]
-        subGroup: Grouping =  Grouping( self._path_nodes + name, files=fileList, **kwargs )
-        subGroup.addDataSources( **kwargs )
-        self._addToCatalog( subGroup.catalog )
-        return subGroup
-
-    @property
-    def fileList(self):
-        fileList = []
-        for filesGlob in self._files:
-            fileList.extend( glob( filesGlob ) )
-        return fileList
-
-    def addDataSources( self, **kwargs ):
-        cdim = kwargs.get( "concat_dim" )
-        aggFilesList: List[Union[str,List[str]]] = [ self.fileList ] if cdim else self.fileList
+    def addDataSources( self, source_file_globs: Union[str,List[str]], **kwargs ):
+        files = source_file_globs if isinstance(source_file_globs,list) else [ source_file_globs ]
+        aggFilesList: List[Union[str,List[str]]] = [ globs(files) ] if "concat_dim" in kwargs else globs(files)
         for aggFiles in aggFilesList:
-            dataSource = self.getDataSource( aggFiles, **kwargs )
-            if dataSource is not None:
-                self.initDataSource( dataSource, **kwargs )
-                self._addToCatalog( dataSource )
-        self._catalog.save( self.getURI( **kwargs ) )
+            dataSource = self._createDataSource( aggFiles, **kwargs )
+            self._initDataSource( dataSource, **kwargs )
+        self._catalog.save(self.getURI( **kwargs ) )
 
-    def getDataSource(self, files: Union[str,List[str]], **kwargs) -> DataSource:
-        cdim = kwargs.get("concat_dim")
-        dataSource = intake.open_netcdf( files, concat_dim=cdim )
+    def _createDataSource(self, files: Union[str,List[str]], **kwargs) -> DataSource:
+        from intake.source import registry
+        driver = kwargs.get("driver", "netcdf")
+        dataSource = registry[ driver ]( files, **kwargs )
+        self._addToCatalog( dataSource  )
         return dataSource
 
-    def initDataSource(self, dataSource: DataSource, **kwargs ):
+    def _initDataSource(self, dataSource: DataSource, **kwargs ):
         dataSource.discover()
         attrs = kwargs.get("attrs", {})
         for key, value in attrs.items(): self.setSourceAttr( dataSource, key, value)
         dataSource.name = self.name
         dataSource.metadata = str_dict( dataSource.metadata )
 
-    def setSourceAttr( self, dataSource: DataSource, key: str, value: str):
+    @classmethod
+    def setSourceAttr( cls, dataSource: DataSource, key: str, value: str):
         attr_value = dataSource.metadata.get(value[1:], "") if value.startswith('@') else value
         setattr( dataSource, key, str(attr_value) )
