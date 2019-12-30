@@ -33,7 +33,7 @@ class Grouping:
 
     @property
     def name(self) -> str:
-        return self._path_nodes[-1]
+        return self._path_nodes[-1] if self._path_nodes else "root"
 
     @property
     def catalog(self) -> Catalog:
