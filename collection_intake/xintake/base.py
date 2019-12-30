@@ -111,23 +111,17 @@ class Grouping:
 
     def addDataSources( self, **kwargs ):
         cdim = kwargs.get( "concat_dim" )
-        if cdim:
-            datasource: DataSource = self.getAggregationDataSource( cdim, **kwargs )
-            self._addToCatalog( datasource )
-        else:
-            for file in self.fileList:
-                datasource: DataSource = self.getFileDataSource( file, **kwargs )
-                self._addToCatalog( datasource )
+        aggFilesList: List[Union[str,List[str]]] = [ self.fileList ] if cdim else self.fileList
+        for aggFiles in aggFilesList:
+            dataSource = self.getDataSource( aggFiles, **kwargs )
+            if dataSource is not None:
+                self.initDataSource( dataSource, **kwargs )
+                self._addToCatalog( dataSource )
         self._catalog.save( self.getURI( **kwargs ) )
 
-    def getFileDataSource(self, filePath: str, **kwargs ) -> DataSource:
-        dataSource = intake.open_netcdf( filePath )
-        if dataSource is not None: self.initDataSource( dataSource, **kwargs )
-        return dataSource
-
-    def getAggregationDataSource(self, concat_dim: str, **kwargs) -> DataSource:
-        dataSource = intake.open_netcdf(self.fileList, concat_dim=concat_dim)
-        if dataSource is not None: self.initDataSource( dataSource, **kwargs )
+    def getDataSource(self, files: Union[str,List[str]], **kwargs) -> DataSource:
+        cdim = kwargs.get("concat_dim")
+        dataSource = intake.open_netcdf( files, concat_dim=cdim )
         return dataSource
 
     def initDataSource(self, dataSource: DataSource, **kwargs ):
