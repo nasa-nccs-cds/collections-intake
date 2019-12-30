@@ -122,7 +122,8 @@ class Grouping:
         from intake.source import registry
         driver = kwargs.pop("driver", "netcdf")
         if driver in self.ReloadableDrivers: kwargs['force_reload'] = False
-        dataSource = registry[ driver ]( files, name=name, **kwargs )
+        dataSource = registry[ driver ]( files, **kwargs )
+        dataSource.name = name
         self._initDataSource(dataSource, **kwargs)
         return dataSource
 

@@ -23,7 +23,7 @@ image_cat = base_cat.addSubGroup( "image", description="Remote sensing image col
 ABoVE_cat = image_cat.addSubGroup( "ABoVE", description="ABoVE Project data collections" )
 ORNL_AVIRIS_NG_cat = ABoVE_cat.addSubGroup( "ORNL_AVIRIS_NG", description="ORNL ABoVE Airborne AVIRIS NG Collections" )
 ang_rdn_v2r2_cat = ORNL_AVIRIS_NG_cat.addSubGroup( "ang_rdn_v2r2", description="ang_rdn_v2r2 collection", metadata={} )
-ang_rdn_v2r2_cat.addDataSources( f"{collection_root}/data/ang*/ang*_rdn_v2r2/*_img", driver="rasterio", chunks={} )
+ang_rdn_v2r2_cat.addDataSource( f"{collection_root}/data/ang*/ang*_rdn_v2r2/*_img", driver="rasterio", chunks={} )
 
 
 
