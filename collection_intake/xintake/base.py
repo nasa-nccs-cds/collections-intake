@@ -121,7 +121,7 @@ class Grouping:
 
     def save( self, cat_uri=None,  **kwargs ):
         catUri = cat_uri if cat_uri else self.getURI(**kwargs)
-        print( f"Catalog {self.name} saving to: {catUri}")
+        print( f"    %%%% -->  Catalog {self.name} saving to: {catUri}")
         self._catalog.save(catUri)
 
     def _createDataSource(self, files: Union[str,List[str]], **kwargs) -> DataSource:
