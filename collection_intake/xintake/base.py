@@ -18,6 +18,8 @@ def globs( globList: List[str] ) -> List[str]:
 
 class Grouping:
 
+    ReloadableDrivers = [ 'rasterio' ]
+
     def __init__( self, path_nodes: List[str], **kwargs ):
         self._catalog: Optional[Catalog] = None
         self._path_nodes: List[str] = path_nodes
@@ -137,7 +139,8 @@ class Grouping:
     def _createDataSource(self, files: Union[str,List[str]], **kwargs) -> DataSource:
         from intake.source import registry
         driver = kwargs.get("driver", "netcdf")
-        dataSource = registry[ driver ]( files, force_reload=False, **kwargs )
+        if driver in self.ReloadableDrivers: kwargs['force_reload'] = False
+        dataSource = registry[ driver ]( files, **kwargs )
         return dataSource
 
     def _initDataSource(self, dataSource: DataSource, **kwargs ):
