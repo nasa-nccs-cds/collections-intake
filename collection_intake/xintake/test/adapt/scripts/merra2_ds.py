@@ -14,5 +14,5 @@ cip_merra2_mon_cat = MERRA_cat.addSubGroup( "cip_merra2_mon", description="MERRA
 
 for agg_dir in agg_dirs:
     print( f"Adding cip_merra2_mon aggregation for data path {agg_dir}")
-    cip_merra2_mon_cat.addDataSources( f"{agg_dir}/*.nc", driver="netcdf", concat_dim="time" )
+    cip_merra2_mon_cat.addDataSources( f"{agg_dir}/*.nc", driver="netcdf", concat_dim="time", chunks={} )
 
