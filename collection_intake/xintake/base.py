@@ -40,7 +40,7 @@ class Grouping:
         return self._catalog
 
     def addSubGroup(self, name: str, **kwargs ) -> "Grouping":
-        subGroup: Grouping =  Grouping( self._path_nodes + name, **kwargs )
+        subGroup: Grouping =  Grouping( self._path_nodes + [name], **kwargs )
         self._addToCatalog( subGroup.catalog )
         return subGroup
 
