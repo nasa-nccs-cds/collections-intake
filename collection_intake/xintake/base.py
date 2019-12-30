@@ -56,7 +56,7 @@ class Grouping:
     def initCatalog(self, **kwargs ) -> YAMLFileCatalog:
         cat_uri = self.getURI(**kwargs)
         if os.path.isfile( cat_uri ):
-            catalog: YAMLFileCatalog = intake.open_catalog( cat_uri, driver="yaml_file_cat" )
+            catalog: YAMLFileCatalog = intake.open_catalog( cat_uri, driver="yaml_file_cat", autoreload=False )
             catalog.discover()
         else:
             catalog: YAMLFileCatalog = YAMLFileCatalog( cat_uri, autoreload=False )
