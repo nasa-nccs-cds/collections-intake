@@ -1,9 +1,4 @@
-from distutils.version import LooseVersion
-from intake.source.base import PatternMixin
-from intake.source.utils import reverse_format
-from intake_xarray.base import DataSourceMixin
-from collection_intake.xintake.base import Grouping, pp, str_dict
-from collection_intake.xintake.aggregation import Aggregation
+from collection_intake.xintake.scrap.aggregation import Aggregation
 from intake.source.base import DataSource
 import intake
 

@@ -1,4 +1,4 @@
-import intake, os, pprint, warnings
+import intake, os, pprint, warnings, abc
 from intake.config import conf as iconf
 from intake.catalog.local import Catalog
 from intake.catalog.local import YAMLFileCatalog
@@ -17,11 +17,11 @@ def globs( fglobs: Union[str,List[str]] ) -> List[str]:
     return fileList
 
 class Grouping:
-
+    __metaclass__ = abc.ABCMeta
     ReloadableDrivers = [ 'rasterio' ]
 
     def __init__( self, path_nodes: List[str], **kwargs ):
-        self._catalog: Optional[YAMLFileCatalog] = None
+        self._catalog: Optional[Catalog] = None
         self._path_nodes: List[str] = path_nodes
         self._initCatalog(**kwargs)
 
@@ -44,17 +44,13 @@ class Grouping:
     def catalog(self) -> Catalog:
         return self._catalog
 
-    def addSubGroup(self, name: str, **kwargs ) -> "Grouping":
-        subGroup: Grouping =  Grouping( self._path_nodes + [name], **kwargs )
-        self._catalog.add( subGroup.catalog )
-        print( f"Added Catalog: {self.catPath}" )
-        return subGroup
+    @abc.abstractmethod
+    def _newCatalog( self, cat_uri: str, **kwargs ) -> Catalog:
+        raise NotImplemented( "Grouping._newCatalog" )
 
     def _initCatalog(self, **kwargs):
         cat_uri = self.getURI(**kwargs)
-        file_exists = os.path.isfile( cat_uri )
-        self._catalog: YAMLFileCatalog = intake.open_catalog( cat_uri, driver="yaml_file_cat", autoreload=file_exists )
-        if file_exists: self._catalog.discover()
+        self._catalog = self._newCatalog( cat_uri )
         description = kwargs.get( "description", None )
         metadata = kwargs.get( "metadata", None )
         if description: self._catalog.description = description
@@ -103,40 +99,10 @@ class Grouping:
     def __del__(self):
         self.close()
 
-    def addDataSource( self, name: str, file_globs: Union[str,List[str]], **kwargs ):
-        fileList: List[str] = globs( file_globs )
-        try:
-            dataSource: DataSource = self._createDataSource( name, fileList, **kwargs )
-            print(f"Adding DataSource to catalog {self.name}:{name} -> {fileList}")
-            self._catalog.add( dataSource )
-            self.save()
-        except Exception as err:
-            print( f" ** Skipped loading the data file(s) {file_globs}:\n     --> Due to Error: {err} ")
-
     def save( self, cat_uri=None,  **kwargs ):
         catUri = cat_uri if cat_uri else self.getURI(**kwargs)
         print( f"    %%%% -->  Catalog {self.name} saving to: {catUri}")
         self._catalog.save(catUri)
-
-    def _createDataSource(self, name: str, files: Union[str,List[str]], **kwargs) -> DataSource:
-        from intake.source import registry
-        driver = kwargs.pop("driver", "netcdf")
-        dataSource = registry[ driver ]( files, **kwargs )
-        dataSource.name = name
-        self._initDataSource(dataSource, **kwargs)
-        return dataSource
-
-    def _initDataSource(self, dataSource: DataSource, **kwargs ):
-        dataSource.discover()
-        attrs = kwargs.get("attrs", {})
-        for key, value in attrs.items(): self.setSourceAttr( dataSource, key, value)
-        dataSource.metadata = str_dict( dataSource.metadata )
-        source_file_uri = self.getSourceUri( dataSource.name, **kwargs)
-        with open(source_file_uri, 'w') as f:
-            yaml = dataSource.yaml()
-            print(f"Writing dataSource {dataSource.name} to {source_file_uri}")
-            f.write(yaml)
-#        dataSource.cat = intake.open_catalog( source_file_uri )
 
     @classmethod
     def setSourceAttr( cls, dataSource: DataSource, key: str, value: str):

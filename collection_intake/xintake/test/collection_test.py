@@ -1,8 +1,6 @@
-import intake, os
-from collection_intake.xintake.collection import Collection
+from collection_intake.xintake.scrap.collection import Collection
 from intake.catalog.local import YAMLFileCatalog
 import xarray as xa
-from glob import glob
 
 source_coll = Collection( "merra2" )
 source_coll.generate( )

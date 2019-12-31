@@ -1,9 +1,8 @@
 from glob import glob
-from collection_intake.xintake.collection import Collection
-from collection_intake.xintake.base import pp
+from collection_intake.xintake.scrap.collection import Collection
 from dateutil.parser import parse
 from collection_intake.xintake.sources.aviris import AvirisFileCatEntry
-import os, intake
+import intake
 print( f"Intake drivers: {list(intake.registry)}" )
 
 def get_time( fname: str ):

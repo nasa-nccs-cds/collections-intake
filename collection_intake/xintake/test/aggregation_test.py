@@ -1,4 +1,4 @@
-from collection_intake.xintake.aggregation import Aggregation
+from collection_intake.xintake.scrap.aggregation import Aggregation
 import xarray as xa
 
 if __name__ == "__main__":

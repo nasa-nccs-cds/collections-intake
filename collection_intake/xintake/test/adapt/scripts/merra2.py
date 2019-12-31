@@ -1,6 +1,6 @@
 from glob import glob
-from collection_intake.xintake.aggregation import Aggregation
-from collection_intake.xintake.collection import Collection
+from collection_intake.xintake.scrap.aggregation import Aggregation
+from collection_intake.xintake.scrap.collection import Collection
 import os, intake
 print( f"Intake drivers: {list(intake.registry)}" )
 

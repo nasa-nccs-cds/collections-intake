@@ -1,82 +1,137 @@
-import intake, os, pprint
-from intake.catalog.local import YAMLFileCatalog, YAMLFilesCatalog, Catalog
-from typing import List, Dict, Any, Sequence, BinaryIO, TextIO, ValuesView, Tuple, Optional
-from collection_intake.xintake.aggregation import Aggregation
+import intake, os, pprint, warnings
+from intake.config import conf as iconf
+from intake.catalog.local import Catalog
+from intake.catalog.local import YAMLFilesCatalog
 from collection_intake.xintake.base import Grouping, pp, str_dict
 from intake.source.base import DataSource
-from intake import open_catalog
-import xarray as xa
 from glob import glob
+from typing import List, Dict, Any, Sequence, BinaryIO, TextIO, ValuesView, Tuple, Optional, Union
+pp = pprint.PrettyPrinter(depth=4).pprint
+warnings.simplefilter(action='ignore', category=FutureWarning)
+def str_dict( x: Dict ) -> Dict: return { str(key): str(value) for key,value in x.items() }
+
+def globs( fglobs: Union[str,List[str]] ) -> List[str]:
+    fglobList = fglobs if isinstance(fglobs, list) else [fglobs]
+    fileList = []
+    for filesGlob in fglobList:
+        fileList.extend( glob( filesGlob ) )
+    return fileList
 
 class Collection(Grouping):
 
-    def __init__( self, name: str = "root", **kwargs ):
-        Grouping.__init__( self, name, **kwargs )
+    def __init__( self, path_nodes: List[str], **kwargs ):
+        Grouping.__init__( self, path_nodes, **kwargs )
 
-    def generate(self, **kwargs ):
-        cat_nodes = kwargs.pop("cat_nodes", [] if self.name == "root" else [ self.name ] )
-        catalog_file = Grouping.getCatalogFilePath( cat_nodes, **kwargs )
-        cat_items = kwargs.get( 'cats' )
-        if not cat_items:
-            cdir = os.path.dirname( catalog_file )
-            cat_items = glob(f"{cdir}/*/catalog.yaml")
-        print( f"Opening collection {self.name} with items:\n" ); pp( cat_items )
-        catalogs: YAMLFilesCatalog = intake.open_catalog( cat_items, driver="yaml_files_cat" )
-        catalogs.name = self.name
-        catalogs.description = self.description
-        catalogs.metadata = str_dict(self.metadata)
+    def _newCatalog( self, cat_uri: str, **kwargs ) -> Catalog:
+        file_exists = os.path.isfile( cat_uri )
+        catalog: YAMLFilesCatalog = intake.open_catalog( cat_uri, driver="yaml_files_cat", autoreload=file_exists )
+        if file_exists: catalog.discover()
+        return catalog
 
-        with open( catalog_file, 'w' ) as f:
-            yaml =  catalogs.yaml()
-            print( f"\nWriting collection {self.name} to {catalog_file}")
-            f.write( yaml )
-        return catalog_file
+    def printMetadata(self):
+        pp( self._catalog.metadata )
 
-    def getCatalog(self, **kwargs ) -> YAMLFileCatalog:
-        if self.catalog is None:
-            cat_nodes = kwargs.pop("cat_nodes", [] if self.name == "root" else [self.name])
-            cdir = Grouping.getCatalogFilePath( cat_nodes, **kwargs )
-            cat_file = os.path.join( cdir, "catalog.json")
-            print( f"Opening collection from file {cat_file}" )
-            self.catalog = intake.open_catalog( cat_file, driver="yaml_file_cat")
-            self.catalog.discover()
-        return self.catalog
+    @property
+    def name(self) -> str:
+        return self._path_nodes[-1] if self._path_nodes else "root"
 
-    def open( self, **kwargs ) -> xa.Dataset:
-        data_source: YAMLFileCatalog = self.getCatalog( **kwargs )
-        agg = kwargs.get( "agg", self.name )
-        ds: xa.Dataset = data_source.__getattr__(self.name).__getattr__(agg).to_dask()
-        return ds
+    @property
+    def catPath(self) -> str:
+        return "/".join(self._path_nodes)
 
-class SourceCollection(Grouping):
+    @property
+    def catalog(self) -> Catalog:
+        return self._catalog
 
-    def __init__( self, name: str = "root", **kwargs ):
-        Grouping.__init__( self, name, **kwargs )
+    def _initCatalog(self, **kwargs):
+        cat_uri = self.getURI(**kwargs)
+        file_exists = os.path.isfile( cat_uri )
+        self._catalog: YAMLFilesCatalog = intake.open_catalog( cat_uri, driver="yaml_file_cat", autoreload=file_exists )
+        if file_exists: self._catalog.discover()
+        description = kwargs.get( "description", None )
+        metadata = kwargs.get( "metadata", None )
+        if description: self._catalog.description = description
+        if metadata: self._catalog.metadata = metadata
+        self._catalog.name = self.name
+        self.save( cat_uri, **kwargs )
 
-    def generate(self, aggs: Dict[str,DataSource], **kwargs ):
-        cat_nodes = kwargs.pop("cat_nodes", [])
-        catalog_file = Grouping.getCatalogFilePath( cat_nodes, **kwargs )
-        print( f"Opening collection {self.name} with aggs:\n" ); pp( aggs.keys() )
-        catalog: Catalog = Catalog.from_dict( aggs, name=self.name, description=self.description, metadata=str_dict(self.metadata)  )
+    def getURI ( self, **kwargs ):
+        base_uri = kwargs.get( "base", self.getIntakeURI())
+        source_name = kwargs.get( "source" )
+        cat_dir = os.path.join( base_uri, *self._path_nodes )
+        cat_file_name = f"catalog-{source_name}.yaml" if source_name else f"catalog.yaml"
+        catalog_uri = os.path.join( cat_dir, cat_file_name )
+        os.makedirs( cat_dir, exist_ok=True )
+        return catalog_uri
 
-        with open( catalog_file, 'w' ) as f:
-            yaml =  catalog.yaml()
-            print( f"\nWriting collection {self.name} to {catalog_file}")
-            f.write( yaml )
+    def getSourceUri(self, name:str, **kwargs ) -> str:
+        return self.getURI( source=name, **kwargs)
 
-    def getCatalog(self, **kwargs ) -> YAMLFileCatalog:
-        if self.catalog is None:
-            cat_nodes = kwargs.pop("cat_nodes", [])
-            cdir = Grouping.getCatalogFilePath( cat_nodes, **kwargs )
-            cat_file = os.path.join( cdir, "catalog.json")
-            print( f"Opening collection from file {cat_file}" )
-            self.catalog = intake.open_catalog( cat_file, driver="yaml_file_cat")
-            self.catalog.discover()
-        return self.catalog
+    @classmethod
+    def getIntakeURI(cls) -> str:
+        catalog_paths = iconf.get( "catalog_path"  )
+        if catalog_paths:
+            catalog_path = catalog_paths[0]
+        else:
+            ilDataDir = os.environ.get('ILDATA')
+            assert ilDataDir is not None, "Must set the ILDATA environment variable to define the data directory"
+            catalog_path = os.path.join( ilDataDir, "collections", "intake" )
+        os.makedirs( catalog_path, exist_ok=True )
+        return catalog_path
 
-    def open( self, **kwargs ) -> xa.Dataset:
-        data_source: YAMLFileCatalog = self.getCatalog( **kwargs )
-        agg = kwargs.get( "agg", self.name )
-        ds: xa.Dataset = data_source.__getattr__(self.name).__getattr__(agg).to_dask()
-        return ds
+    @classmethod
+    def getCatalogURI(cls, catalog_path: Union[str,List[str]] = None ) :
+        cats_uri = cls.getIntakeURI()
+        cat_file_path = [ cats_uri ]
+        if catalog_path is not None:
+            if isinstance(catalog_path, list):
+                cat_file_path.extend( catalog_path )
+            else:
+                cat_file_path.append( catalog_path )
+        return os.path.join(  *cat_file_path, "catalog.yaml"  )
 
+    def close(self):
+        if self._catalog:  self._catalog.close()
+
+    def __del__(self):
+        self.close()
+
+    def addDataSource( self, name: str, file_globs: Union[str,List[str]], **kwargs ):
+        fileList: List[str] = globs( file_globs )
+        try:
+            dataSource: DataSource = self._createDataSource( name, fileList, **kwargs )
+            print(f"Adding DataSource to catalog {self.name}:{name} -> {fileList}")
+            self._catalog.add( dataSource )
+            self.save()
+        except Exception as err:
+            print( f" ** Skipped loading the data file(s) {file_globs}:\n     --> Due to Error: {err} ")
+
+    def save( self, cat_uri=None,  **kwargs ):
+        catUri = cat_uri if cat_uri else self.getURI(**kwargs)
+        print( f"    %%%% -->  Catalog {self.name} saving to: {catUri}")
+        self._catalog.save(catUri)
+
+    def _createDataSource(self, name: str, files: Union[str,List[str]], **kwargs) -> DataSource:
+        from intake.source import registry
+        driver = kwargs.pop("driver", "netcdf")
+        dataSource = registry[ driver ]( files, **kwargs )
+        dataSource.name = name
+        self._initDataSource(dataSource, **kwargs)
+        return dataSource
+
+    def _initDataSource(self, dataSource: DataSource, **kwargs ):
+        dataSource.discover()
+        attrs = kwargs.get("attrs", {})
+        for key, value in attrs.items(): self.setSourceAttr( dataSource, key, value)
+        dataSource.metadata = str_dict( dataSource.metadata )
+        source_file_uri = self.getSourceUri( dataSource.name, **kwargs)
+        with open(source_file_uri, 'w') as f:
+            yaml = dataSource.yaml()
+            print(f"Writing dataSource {dataSource.name} to {source_file_uri}")
+            f.write(yaml)
+#        dataSource.cat = intake.open_catalog( source_file_uri )
+
+    @classmethod
+    def setSourceAttr( cls, dataSource: DataSource, key: str, value: str):
+        attr_value = dataSource.metadata.get(value[1:], "") if value.startswith('@') else value
+        setattr( dataSource, key, str(attr_value) )
