@@ -52,10 +52,9 @@ class Grouping:
 
     def _initCatalog(self, **kwargs):
         cat_uri = self.getURI(**kwargs)
-        self._catalog: YAMLFileCatalog = intake.open_catalog( cat_uri, driver="yaml_file_cat", autoreload=False )
-        if os.path.isfile( cat_uri ):
-            self._catalog.force_reload()
-            self._catalog.discover()
+        file_exists = os.path.isfile( cat_uri )
+        self._catalog: YAMLFileCatalog = intake.open_catalog( cat_uri, driver="yaml_file_cat", autoreload=file_exists )
+        if file_exists: self._catalog.discover()
         description = kwargs.get( "description", None )
         metadata = kwargs.get( "metadata", None )
         if description: self._catalog.description = description
@@ -110,6 +109,7 @@ class Grouping:
             dataSource: DataSource = self._createDataSource( name, fileList, **kwargs )
             print(f"Adding DataSource to catalog {self.name}:{name} -> {fileList}")
             self._catalog.add( dataSource )
+            self.save()
         except Exception as err:
             print( f" ** Skipped loading the data file(s) {file_globs}:\n     --> Due to Error: {err} ")
 
@@ -121,7 +121,6 @@ class Grouping:
     def _createDataSource(self, name: str, files: Union[str,List[str]], **kwargs) -> DataSource:
         from intake.source import registry
         driver = kwargs.pop("driver", "netcdf")
-        if driver in self.ReloadableDrivers: kwargs['force_reload'] = False
         dataSource = registry[ driver ]( files, **kwargs )
         dataSource.name = name
         self._initDataSource(dataSource, **kwargs)
@@ -137,7 +136,7 @@ class Grouping:
             yaml = dataSource.yaml()
             print(f"Writing dataSource {dataSource.name} to {source_file_uri}")
             f.write(yaml)
-        dataSource.cat = intake.open_catalog( source_file_uri )
+#        dataSource.cat = intake.open_catalog( source_file_uri )
 
     @classmethod
     def setSourceAttr( cls, dataSource: DataSource, key: str, value: str):
