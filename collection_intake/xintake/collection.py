@@ -60,7 +60,7 @@ class DataCollection(IntakeNode):
     def addFileCollection( self, fileGlobs: Union[str,List[str]], **kwargs ):
         fileList = globs(fileGlobs)
         do_save = kwargs.pop('save', True)
-        get_name:  Callable[[str,int,str],str] = kwargs.get('get_name', get_source_name )
+        get_name:  Callable[[str,int,str],str] = kwargs.pop('get_name', get_source_name )
         for iFile, filePath in enumerate(fileList):
             try:
                 if isList(filePath): print(f"Adding FileCollection to catalog {self.name} -> {summary(filePath)}")
