@@ -1,4 +1,5 @@
 import intake, os, pprint, warnings, abc
+from abc import ABC, abstractmethod
 from intake.config import conf as iconf
 from intake.catalog.local import Catalog
 from intake.catalog.local import YAMLFileCatalog
@@ -16,18 +17,14 @@ def globs( fglobs: Union[str,List[str]] ) -> List[str]:
         fileList.extend( glob( filesGlob ) )
     return fileList
 
-class Grouping:
+class IntakeNode(ABC):
     __metaclass__ = abc.ABCMeta
     ReloadableDrivers = [ 'rasterio' ]
 
     def __init__( self, path_nodes: List[str], **kwargs ):
         self._catalog: Optional[Catalog] = None
         self._path_nodes: List[str] = path_nodes
-        self._initCatalog(**kwargs)
-
-    @classmethod
-    def getCatalogBase(cls, **kwargs) -> "Grouping":
-        return Grouping( [], **kwargs )
+        self._catalog = self._newCatalog( name=self.name, **kwargs )
 
     def printMetadata(self):
         pp( self._catalog.metadata )
@@ -41,34 +38,22 @@ class Grouping:
         return "/".join(self._path_nodes)
 
     @property
+    def catDir ( self ) -> str:
+        cat_dir = os.path.join( self.getIntakeURI(), *self._path_nodes )
+        os.makedirs(cat_dir, exist_ok=True)
+        return cat_dir
+
+    @property
     def catalog(self) -> Catalog:
         return self._catalog
 
-    @abc.abstractmethod
-    def _newCatalog( self, cat_uri: str, **kwargs ) -> Catalog:
-        raise NotImplemented( "Grouping._newCatalog" )
+    @abstractmethod
+    def _newCatalog( self, **kwargs ) -> Catalog:
+        raise NotImplementedError("calling abstract method IntakeNode._newCatalog")
 
-    def _initCatalog(self, **kwargs):
-        cat_uri = self.getURI(**kwargs)
-        self._catalog = self._newCatalog( cat_uri )
-        description = kwargs.get( "description", None )
-        metadata = kwargs.get( "metadata", None )
-        if description: self._catalog.description = description
-        if metadata: self._catalog.metadata = metadata
-        self._catalog.name = self.name
-        self.save( cat_uri, **kwargs )
-
-    def getURI ( self, **kwargs ):
-        base_uri = kwargs.get( "base", self.getIntakeURI())
-        source_name = kwargs.get( "source" )
-        cat_dir = os.path.join( base_uri, *self._path_nodes )
-        cat_file_name = f"catalog-{source_name}.yaml" if source_name else f"catalog.yaml"
-        catalog_uri = os.path.join( cat_dir, cat_file_name )
-        os.makedirs( cat_dir, exist_ok=True )
-        return catalog_uri
-
-    def getSourceUri(self, name:str, **kwargs ) -> str:
-        return self.getURI( source=name, **kwargs)
+    @property
+    def catURI (self) -> str:
+        return  os.path.join( self.catDir, "catalog.yaml" )
 
     @classmethod
     def getIntakeURI(cls) -> str:
@@ -99,8 +84,9 @@ class Grouping:
     def __del__(self):
         self.close()
 
-    def save( self, cat_uri=None,  **kwargs ):
-        catUri = cat_uri if cat_uri else self.getURI(**kwargs)
+    def save( self, **kwargs ):
+        self._catalog.force_reload()
+        catUri = kwargs.get( 'catalog_uri', self.catURI )
         print( f"    %%%% -->  Catalog {self.name} saving to: {catUri}")
         self._catalog.save(catUri)
 

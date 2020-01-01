@@ -1,31 +1,35 @@
 import intake, os, pprint, warnings
 from intake.config import conf as iconf
-from intake.catalog.local import Catalog
-from intake.catalog.local import YAMLFileCatalog
-from collection_intake.xintake.base import Grouping, pp, str_dict
-from glob import glob
+from intake.catalog.local import YAMLFileCatalog, Catalog
+from collection_intake.xintake.base import IntakeNode, pp, str_dict
+from collection_intake.xintake.collection import DataCollection
 from typing import List, Dict, Any, Sequence, BinaryIO, TextIO, ValuesView, Tuple, Optional, Union
 
-def globs( fglobs: Union[str,List[str]] ) -> List[str]:
-    fglobList = fglobs if isinstance(fglobs, list) else [fglobs]
-    fileList = []
-    for filesGlob in fglobList:
-        fileList.extend( glob( filesGlob ) )
-    return fileList
-
-class CatalogNode(Grouping):
+class CatalogNode(IntakeNode):
 
     def __init__( self, path_nodes: List[str], **kwargs ):
-        Grouping.__init__(self, path_nodes, **kwargs)
+        IntakeNode.__init__(self, path_nodes, **kwargs)
 
-    def _newCatalog( self, cat_uri: str, **kwargs ) -> Catalog:
-        file_exists = os.path.isfile( cat_uri )
-        catalog: YAMLFileCatalog = intake.open_catalog( cat_uri, driver="yaml_file_cat", autoreload=file_exists )
+    @classmethod
+    def getCatalogBase(cls, **kwargs) -> "CatalogNode":
+        return CatalogNode([], **kwargs)
+
+    def _newCatalog( self, **kwargs ) -> Catalog:
+        file_uri: str = self.catURI
+        file_exists = os.path.isfile( file_uri )
+        catalog: Catalog = intake.open_catalog( file_uri, driver="yaml_file_cat", autoreload=file_exists, **kwargs )
         if file_exists: catalog.discover()
+        self.save()
         return catalog
 
-    def addSubGroup(self, name: str, **kwargs ) -> "Grouping":
-        subGroup: Grouping =  Grouping( self._path_nodes + [name], **kwargs )
-        self._catalog.add( subGroup.catalog )
+    def addCatalogNode(self, name: str, **kwargs ) -> "CatalogNode":
+        catNode: CatalogNode =  CatalogNode(self._path_nodes + [name], **kwargs)
+        self._catalog.add( catNode.catalog )
         print( f"Added Catalog: {self.catPath}" )
-        return subGroup
+        return catNode
+
+    def addDataCollection(self, name: str, **kwargs ) -> "DataCollection":
+        collection: DataCollection =  DataCollection( self._path_nodes + [name], **kwargs )
+        self._catalog.add( collection.catalog )
+        print( f"Added DataCollection: {self.catPath}" )
+        return collection

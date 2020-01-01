@@ -2,15 +2,15 @@ import intake, os, pprint
 from intake_xarray.netcdf import NetCDFSource
 from intake.config import conf as iconf
 from intake.catalog.local import YAMLFileCatalog
-from collection_intake.xintake.base import Grouping, pp, str_dict
+from collection_intake.xintake.base import IntakeNode, pp, str_dict
 from typing import List, Dict, Any, Sequence, BinaryIO, TextIO, ValuesView, Tuple, Optional
 import xarray as xa
 from intake.source.base import DataSource
 
-class Aggregation(Grouping):
+class Aggregation(IntakeNode):
 
     def __init__( self, name: str, **kwargs ):
-        Grouping.__init__( self, name, **kwargs )
+        IntakeNode.__init__(self, name, **kwargs)
         self.files = kwargs.get( "files", None )
         self.collection = kwargs.get( "collection", self.name )
         self.dataSource: Optional[DataSource] = None
@@ -46,7 +46,7 @@ class Aggregation(Grouping):
         cat_nodes = kwargs.pop("cat_nodes", [ self.collection, self.name ] )
         self.openDataSource( **kwargs )
         if self.dataSource is None: return None
-        catalog_file = Grouping.getCatalogFilePath( cat_nodes, **kwargs )
+        catalog_file = IntakeNode.getCatalogFilePath(cat_nodes, **kwargs)
 
         with open( catalog_file, 'w' ) as f:
             yaml =  self.dataSource.yaml()
@@ -56,7 +56,7 @@ class Aggregation(Grouping):
 
     def openFromCatalog(self, **kwargs) -> xa.Dataset:
         if self.catalog is None:
-            cat_file = Grouping.getCatalogFilePath( [], **kwargs )
+            cat_file = IntakeNode.getCatalogFilePath([], **kwargs)
             print( f"Opening aggregation from file {cat_file}" )
             self.catalog: YAMLFileCatalog = intake.open_catalog( cat_file, driver="yaml_file_cat")
             self.catalog.discover()
@@ -64,7 +64,7 @@ class Aggregation(Grouping):
         return ds
 
     def close(self):
-        Grouping.close(self)
+        IntakeNode.close(self)
         if self.dataSource: self.dataSource.close()
 
 if __name__ == "__main__":
