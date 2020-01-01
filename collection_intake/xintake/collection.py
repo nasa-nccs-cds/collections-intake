@@ -32,7 +32,7 @@ class DataCollection(IntakeNode):
         return os.path.join( self.sourcesDir, f"{name}.yaml" )
 
     def _initializeCatalog(self, **kwargs):
-        self._catalog = intake.open_catalog( self.sourcesDir, driver="yaml_files_cat", autoreload=False, name=self.name, **kwargs )
+        self._catalog = intake.open_catalog( self.sourcesDir, driver="yaml_files_cat", name=self.name, **kwargs )
 
     def addDataSource( self, name: str, fileList: Union[str,List[str]], **kwargs ):
         try:
