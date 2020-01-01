@@ -13,6 +13,9 @@ def globs( fglobs: Union[str,List[str]] ) -> List[str]:
         fileList.extend( glob( filesGlob ) )
     return fileList
 
+def summary( fileList: Union[str,List[str]] ) -> str:
+   return f"{fileList[0]}...{fileList[-1]}" if (fileList and isinstance(fileList, list)) else str(fileList)
+
 class DataCollection(IntakeNode):
 
     def __init__( self, path_nodes: List[str], **kwargs ):
@@ -37,7 +40,7 @@ class DataCollection(IntakeNode):
     def addAggregation( self, name: str, fileList: Union[str,List[str]], **kwargs ):
         try:
             do_save = kwargs.pop( 'save', True )
-            print(f"Adding Data Aggregation to catalog {self.name}:{name} -> {fileList}")
+            print(f"Adding Data Aggregation to catalog {self.name}:{name} ->  {summary(fileList)}")
             self._createDataSource( name, fileList, **kwargs )
             if do_save(): self.save()
         except Exception as err:
@@ -53,7 +56,7 @@ class DataCollection(IntakeNode):
         do_save = kwargs.pop('save', True)
         for filePath in fileList:
             try:
-                print(f"Adding DataSource to catalog {self.name}:{name} -> {fileList}")
+                print(f"Adding FileCollection to catalog {self.name}:{name} -> {summary(fileList)}")
                 self._createDataSource( name, filePath, **kwargs )
             except Exception as err:
                 print( f" ** Skipped loading the data file(s) {fileList}:\n     --> Due to Error: {err} ")
