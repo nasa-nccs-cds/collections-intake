@@ -41,8 +41,8 @@ class DataCollection(IntakeNode):
         return os.path.join( self.sourcesDir, f"{name}.yaml" )
 
     def _initializeCatalog(self, **kwargs):
-        super(DataCollection, self)._initializeCatalog( **kwargs )
         self._sources_catalog = intake.open_catalog( self.sourcesDir, driver="yaml_files_cat", name=self.name, **kwargs )
+        super(DataCollection, self)._initializeCatalog( **kwargs )
 
     def addAggregation( self, name: str, fileList: Union[str,List[str]], **kwargs ):
         try:
