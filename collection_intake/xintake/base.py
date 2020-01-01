@@ -24,7 +24,7 @@ class IntakeNode(ABC):
     def __init__( self, path_nodes: List[str], **kwargs ):
         self._catalog: Optional[Catalog] = None
         self._path_nodes: List[str] = path_nodes
-        self._catalog = self._newCatalog( name=self.name, **kwargs )
+        self._initializeCatalog( **kwargs )
 
     def printMetadata(self):
         pp( self._catalog.metadata )
@@ -48,7 +48,7 @@ class IntakeNode(ABC):
         return self._catalog
 
     @abstractmethod
-    def _newCatalog( self, **kwargs ) -> Catalog:
+    def _initializeCatalog(self, **kwargs):
         raise NotImplementedError("calling abstract method IntakeNode._newCatalog")
 
     @property

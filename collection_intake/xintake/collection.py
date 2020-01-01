@@ -31,9 +31,8 @@ class DataCollection(IntakeNode):
     def sourceUri(self, name: str ) -> str:
         return os.path.join( self.sourcesDir, f"{name}.yaml" )
 
-    def _newCatalog( self, **kwargs ) -> Catalog:
-        catalog: Catalog = intake.open_catalog( self.sourcesDir, driver="yaml_files_cat", autoreload=False )
-        return catalog
+    def _initializeCatalog(self, **kwargs):
+        self._catalog = intake.open_catalog( self.sourcesDir, driver="yaml_files_cat", autoreload=False, name=self.name, **kwargs )
 
     def addDataSource( self, name: str, fileList: Union[str,List[str]], **kwargs ):
         try:
@@ -54,10 +53,6 @@ class DataCollection(IntakeNode):
         driver = kwargs.pop("driver", "netcdf")
         dataSource = registry[ driver ]( files, **kwargs )
         dataSource.name = name
-        self._initDataSource(dataSource, **kwargs)
-        return dataSource
-
-    def _initDataSource(self, dataSource: DataSource, **kwargs ):
         dataSource.discover()
         attrs = kwargs.get( "attrs", {} )
         for key, value in attrs.items(): self.setSourceAttr( dataSource, key, value)
@@ -68,5 +63,5 @@ class DataCollection(IntakeNode):
             yaml = dataSource.yaml()
             print(f"Writing dataSource {dataSource.name} to {source_file_uri}")
             f.write(yaml)
-        return source_file_uri
+        return dataSource
 

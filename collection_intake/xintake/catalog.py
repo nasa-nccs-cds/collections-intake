@@ -14,13 +14,12 @@ class CatalogNode(IntakeNode):
     def getCatalogBase(cls, **kwargs) -> "CatalogNode":
         return CatalogNode([], **kwargs)
 
-    def _newCatalog( self, **kwargs ) -> Catalog:
+    def _initializeCatalog(self, **kwargs):
         file_uri: str = self.catURI
         file_exists = os.path.isfile( file_uri )
-        catalog: Catalog = intake.open_catalog( file_uri, driver="yaml_file_cat", autoreload=file_exists, **kwargs )
-        if file_exists: catalog.discover()
+        self._catalog = intake.open_catalog( file_uri, driver="yaml_file_cat", autoreload=file_exists, name=self.name, **kwargs )
+        if file_exists: self._catalog.discover()
         self.save()
-        return catalog
 
     def addCatalogNode(self, name: str, **kwargs ) -> "CatalogNode":
         catNode: CatalogNode =  CatalogNode(self._path_nodes + [name], **kwargs)
