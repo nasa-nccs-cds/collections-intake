@@ -4,7 +4,7 @@ from intake.catalog.local import YAMLFilesCatalog, Catalog
 from collection_intake.xintake.base import IntakeNode, pp, str_dict
 from intake.source.base import DataSource
 from glob import glob
-from typing import List, Dict, Any, Sequence, BinaryIO, TextIO, ValuesView, Tuple, Optional, Union
+from typing import List, Dict, Any, Sequence, BinaryIO, TextIO, ValuesView, Tuple, Optional, Union, Callable
 
 def globs( fglobs: Union[str,List[str]] ) -> List[str]:
     fglobList = fglobs if isinstance(fglobs, list) else [fglobs]
@@ -18,6 +18,9 @@ def summary( fileList: Union[str,List[str]] ) -> str:
 
 def isList(  fileList: Union[str,List[str]] ) -> bool:
     return len( globs( fileList ) ) > 1
+
+def get_source_name( collection: str, index: int, fname: str ):
+    return f"{collection}-{index}"
 
 class DataCollection(IntakeNode):
 
@@ -54,22 +57,18 @@ class DataCollection(IntakeNode):
             self.addAggregation( source_name, fileGlobs, save = False, **kwargs )
         self.save()
 
-    def addFileCollection( self, name: str, fileGlobs: Union[str,List[str]], **kwargs ):
+    def addFileCollection( self, fileGlobs: Union[str,List[str]], **kwargs ):
         fileList = globs(fileGlobs)
         do_save = kwargs.pop('save', True)
+        get_name:  Callable[[str,int,str],str] = kwargs.get('get_name', get_source_name )
         for iFile, filePath in enumerate(fileList):
             try:
-                if isList(filePath): print(f"Adding FileCollection to catalog {self.name}:{name} -> {summary(filePath)}")
-                else:                print(f"Adding File to catalog {self.name}:{name} -> {filePath}")
-                self._createDataSource( f"{name}-{iFile}", filePath, **kwargs )
+                if isList(filePath): print(f"Adding FileCollection to catalog {self.name} -> {summary(filePath)}")
+                else:                print(f"Adding File to catalog {self.name} -> {filePath}")
+                self._createDataSource( get_name(self.name,iFile,filePath), filePath, **kwargs )
             except Exception as err:
                 print( f" ** Skipped loading the data file {filePath}:\n     --> Due to Error: {err} ")
         if do_save: self.save()
-
-    def addFileCollections(self, collections: Dict[str,List], **kwargs):
-        for (collection_name, fileGlobs) in collections.items():
-            self.addFileCollection( collection_name, fileGlobs, save = False, **kwargs )
-        self.save()
 
     def _createDataSource(self, name: str, files: Union[str,List[str]], **kwargs) -> DataSource:
         from intake.source import registry
