@@ -47,9 +47,12 @@ class IntakeNode(ABC):
     def catalog(self) -> Catalog:
         return self._catalog
 
-    @abstractmethod
     def _initializeCatalog(self, **kwargs):
-        raise NotImplementedError("calling abstract method IntakeNode._newCatalog")
+        file_uri: str = self.catURI
+        file_exists = os.path.isfile( file_uri )
+        self._catalog = intake.open_catalog( file_uri, driver="yaml_file_cat", autoreload=file_exists, name=self.name, **kwargs )
+        if file_exists: self._catalog.discover()
+        self.save()
 
     @property
     def catURI (self) -> str:

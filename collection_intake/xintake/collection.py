@@ -41,7 +41,8 @@ class DataCollection(IntakeNode):
         return os.path.join( self.sourcesDir, f"{name}.yaml" )
 
     def _initializeCatalog(self, **kwargs):
-        self._catalog = intake.open_catalog( self.sourcesDir, driver="yaml_files_cat", name=self.name, **kwargs )
+        super(DataCollection, self)._initializeCatalog( **kwargs )
+        self._sources_catalog = intake.open_catalog( self.sourcesDir, driver="yaml_files_cat", name=self.name, **kwargs )
 
     def addAggregation( self, name: str, fileList: Union[str,List[str]], **kwargs ):
         try:
@@ -63,9 +64,10 @@ class DataCollection(IntakeNode):
         get_name:  Callable[[str,int,str],str] = kwargs.pop('get_name', get_source_name )
         for iFile, filePath in enumerate(fileList):
             try:
-                if isList(filePath): print(f"Adding FileCollection to catalog {self.name} -> {summary(filePath)}")
-                else:                print(f"Adding File to catalog {self.name} -> {filePath}")
-                self._createDataSource( get_name(self.name,iFile,filePath), filePath, **kwargs )
+                source_name = get_name(self.name, iFile, filePath)
+                if isList(filePath): print(f"Adding source collection to catalog {source_name} -> {summary(filePath)}")
+                else:                print(f"Adding source file to catalog {source_name} -> {filePath}")
+                self._createDataSource( source_name, filePath, **kwargs )
             except Exception as err:
                 print( f" ** Skipped loading the data file {filePath}:\n     --> Due to Error: {err} ")
         if do_save: self.save()
@@ -86,4 +88,10 @@ class DataCollection(IntakeNode):
             print(f"Writing dataSource {dataSource.name} to {source_file_uri}")
             f.write(yaml)
         return dataSource
+
+    def save( self, **kwargs ):
+        self._sources_catalog.force_reload()
+        catUri = kwargs.get( 'catalog_uri', self.catURI )
+        print( f"    %%%% -->  Catalog {self.name} saving to: {catUri}")
+        self._sources_catalog.save(catUri)
 
