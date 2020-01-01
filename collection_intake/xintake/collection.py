@@ -57,11 +57,11 @@ class DataCollection(IntakeNode):
     def addFileCollection( self, name: str, fileGlobs: Union[str,List[str]], **kwargs ):
         fileList = globs(fileGlobs)
         do_save = kwargs.pop('save', True)
-        for filePath in fileList:
+        for iFile, filePath in enumerate(fileList):
             try:
                 if isList(filePath): print(f"Adding FileCollection to catalog {self.name}:{name} -> {summary(filePath)}")
                 else:                print(f"Adding File to catalog {self.name}:{name} -> {filePath}")
-                self._createDataSource( name, filePath, **kwargs )
+                self._createDataSource( f"{name}-{iFile}", filePath, **kwargs )
             except Exception as err:
                 print( f" ** Skipped loading the data file {filePath}:\n     --> Due to Error: {err} ")
         if do_save: self.save()
