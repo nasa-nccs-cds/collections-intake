@@ -19,7 +19,7 @@ image_cat = base_cat.addCatalogNode( "image", description="Remote sensing image 
 ABoVE_cat = image_cat.addCatalogNode( "ABoVE", description="ABoVE Project data collections" )
 ORNL_AVIRIS_NG_cat = ABoVE_cat.addCatalogNode( "ORNL_AVIRIS_NG", description="ORNL ABoVE Airborne AVIRIS NG Collections" )
 ang_v2r2 = ORNL_AVIRIS_NG_cat.addDataCollection( "ang_v2r2", description="ang_v2r2 collection", metadata={} )
-ang_v2r2.addDataSource( "rdn", f"{collection_root}/data/ang*/ang*_rdn_v2r2/*_img", driver="rasterio", chunks={} )
+ang_v2r2.addFileCollection( "rdn", f"{collection_root}/data/ang*/ang*_rdn_v2r2/*_img", driver="rasterio", chunks={} )
 
 
 

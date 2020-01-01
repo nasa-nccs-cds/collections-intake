@@ -34,18 +34,34 @@ class DataCollection(IntakeNode):
     def _initializeCatalog(self, **kwargs):
         self._catalog = intake.open_catalog( self.sourcesDir, driver="yaml_files_cat", name=self.name, **kwargs )
 
-    def addDataSource( self, name: str, fileList: Union[str,List[str]], **kwargs ):
+    def addAggregation( self, name: str, fileList: Union[str,List[str]], **kwargs ):
         try:
             do_save = kwargs.pop( 'save', True )
+            print(f"Adding Data Aggregation to catalog {self.name}:{name} -> {fileList}")
             self._createDataSource( name, fileList, **kwargs )
-            print(f"Adding DataSource to catalog {self.name}:{name} -> {fileList}")
             if do_save(): self.save()
         except Exception as err:
             print( f" ** Skipped loading the data file(s) {fileList}:\n     --> Due to Error: {err} ")
 
-    def addDataSources(self, sources: Dict[str,List], **kwargs):
+    def addAggregations(self, sources: Dict[str,List], **kwargs):
         for (source_name, fileGlobs) in sources.items():
-            self.addDataSource( source_name, fileGlobs, save = False, **kwargs )
+            self.addAggregation( source_name, fileGlobs, save = False, **kwargs )
+        self.save()
+
+    def addFileCollection( self, name: str, fileGlobs: Union[str,List[str]], **kwargs ):
+        fileList = globs(fileGlobs)
+        do_save = kwargs.pop('save', True)
+        for filePath in fileList:
+            try:
+                print(f"Adding DataSource to catalog {self.name}:{name} -> {fileList}")
+                self._createDataSource( name, filePath, **kwargs )
+            except Exception as err:
+                print( f" ** Skipped loading the data file(s) {fileList}:\n     --> Due to Error: {err} ")
+        if do_save: self.save()
+
+    def addFileCollections(self, collections: Dict[str,List], **kwargs):
+        for (collection_name, fileGlobs) in collections.items():
+            self.addFileCollection( collection_name, fileGlobs, save = False, **kwargs )
         self.save()
 
     def _createDataSource(self, name: str, files: Union[str,List[str]], **kwargs) -> DataSource:

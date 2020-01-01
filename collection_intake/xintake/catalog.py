@@ -24,11 +24,11 @@ class CatalogNode(IntakeNode):
     def addCatalogNode(self, name: str, **kwargs ) -> "CatalogNode":
         catNode: CatalogNode =  CatalogNode(self._path_nodes + [name], **kwargs)
         self._catalog.add( catNode.catalog )
-        print( f"Added Catalog: {self.catPath}" )
+        print( f"Add Catalog: {self.catPath}" )
         return catNode
 
     def addDataCollection(self, name: str, **kwargs ) -> "DataCollection":
         collection: DataCollection =  DataCollection( self._path_nodes + [name], **kwargs )
         self._catalog.add( collection.catalog )
-        print( f"Added DataCollection: {self.catPath}" )
+        print( f"Adding DataCollection: {self.catPath}" )
         return collection
