@@ -15,7 +15,7 @@ class CatalogNode(IntakeNode):
         return CatalogNode([], **kwargs)
 
     def addCatalogNode(self, name: str, **kwargs ) -> "CatalogNode":
-        catNode: CatalogNode =  CatalogNode(self._path_nodes + [name], **kwargs)
+        catNode: CatalogNode =  CatalogNode( self._path_nodes + [name], **kwargs )
         self._catalog.add( catNode.catalog )
         print( f"Add Catalog: {self.catPath}" )
         return catNode
@@ -25,3 +25,8 @@ class CatalogNode(IntakeNode):
         self._catalog.add( collection.catalog )
         print( f"Adding DataCollectionGenerator: {self.catPath}" )
         return collection
+
+    @classmethod
+    def open(cls, catalog_path: str ) -> "CatalogNode":
+        catalog_path: List[str] = catalog_path.split("/")
+        return CatalogNode( catalog_path )

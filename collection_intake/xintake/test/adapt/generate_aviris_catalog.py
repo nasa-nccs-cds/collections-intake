@@ -1,6 +1,5 @@
 from collection_intake.xintake.catalog import CatalogNode
 from collection_intake.xintake.collection import DataCollectionGenerator
-from
 from dateutil.parser import parse
 
 import intake
