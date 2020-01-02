@@ -33,7 +33,7 @@ class CatalogNode(IntakeNode):
 
     @property
     def sources(self) -> List[str]:
-        return self.catalog._entries.keys()
+        return list( self.catalog._entries.keys() )
 
     def getSource( self, id: str ):
         return self.catalog._entries.get( id, None )
