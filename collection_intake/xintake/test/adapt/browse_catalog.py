@@ -3,9 +3,10 @@ from intake.catalog.local import YAMLFileCatalog, YAMLFilesCatalog, Catalog
 from collection_intake.xintake.catalog import CatalogNode
 from collection_intake.xintake.manager import collections
 
-ABoVE: Catalog = collections.catalog.image.ABoVE
-print( ABoVE )
+image: Catalog = collections.catalog.image
+print( image )
+print( image.__class__.__name__ )
 
-print( "Elements:" )
-for item in ABoVE.items():
-    print( item )
+# print( "Elements:" )
+# for item in image.el:
+#     print( item )
