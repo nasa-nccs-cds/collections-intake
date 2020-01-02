@@ -1,9 +1,9 @@
 import intake
-from intake.catalog.local import YAMLFileCatalog, YAMLFilesCatalog, Catalog
+from intake.catalog.local import YAMLFileCatalog, YAMLFilesCatalog, Catalog, LocalCatalogEntry
 from collection_intake.xintake.catalog import CatalogNode
 from collection_intake.xintake.manager import collections
 
-image: Catalog = collections.catalog.image
+image = collections.catalog.image.get()
 print( image )
 
 
