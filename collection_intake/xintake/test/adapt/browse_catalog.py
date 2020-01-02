@@ -1,3 +1,3 @@
 import intake
 
-list(intake.cat)
+print( list(intake.cat) )
