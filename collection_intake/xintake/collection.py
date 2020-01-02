@@ -77,7 +77,6 @@ class DataCollectionGenerator(IntakeNode):
         driver = kwargs.pop("driver", "netcdf")
         dataSource = registry[ driver ]( files,  **kwargs )
         dataSource.name = name
-        dataSource.parameters=dict()
         dataSource.discover()
         attrs = kwargs.get( "attrs", {} )
         for key, value in attrs.items(): self.setSourceAttr( dataSource, key, value)
@@ -95,4 +94,14 @@ class DataCollectionGenerator(IntakeNode):
         catUri = kwargs.get( 'catalog_uri', self.catURI )
         print( f"    %%%% -->  Catalog {self.name} saving to: {catUri}")
         self._sources_catalog.save(catUri)
+        self.patch_yaml( catUri )
+
+    def patch_yaml(self, file_path: str ):
+        # Patch Intake bug.
+        new_lines = []
+        with open( file_path, 'r'  ) as f:
+            for line in f.readlines():
+                new_lines.append( line.replace( 'parameters: []', 'parameters: {}') )
+        with open( file_path, 'w' ) as f:
+            f.writelines( new_lines )
 
