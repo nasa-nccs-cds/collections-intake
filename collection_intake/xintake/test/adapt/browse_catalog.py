@@ -16,7 +16,7 @@ print( f'Result: {ang_rdn_v2r2.discover()}'  )
 data_source: RasterIOSource =  ang_rdn_v2r2['ang_rdn_v2r2-99-2018-07-22_23-00-37'].get()
 
 dask_data_source: xa.DataArray = data_source.to_dask()
-print( f'dask_data_source, shape: {dask_data_source.shape}, dims: {dask_data_source.dims}'  )
+print( f'dask_data_source, shape: {dask_data_source.shape}, dims: {dask_data_source.dims}, chunks: {dask_data_source.chunks}'  )
 
 t0 = time.time()
 dask_data_source.persist()
