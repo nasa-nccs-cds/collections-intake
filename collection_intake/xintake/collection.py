@@ -22,7 +22,7 @@ def isList(  fileList: Union[str,List[str]] ) -> bool:
 def get_source_name( collection: str, index: int, fname: str ):
     return f"{collection}-{index}"
 
-class DataCollection(IntakeNode):
+class DataCollectionGenerator(IntakeNode):
 
     def __init__( self, path_nodes: List[str], **kwargs ):
         IntakeNode.__init__( self, path_nodes, **kwargs )
@@ -42,7 +42,7 @@ class DataCollection(IntakeNode):
 
     def _initializeCatalog(self, **kwargs):
         self._sources_catalog = intake.open_catalog( self.sourcesDir, driver="yaml_files_cat", name=self.name, **kwargs )
-        super(DataCollection, self)._initializeCatalog( **kwargs )
+        super(DataCollectionGenerator, self)._initializeCatalog(**kwargs)
 
     def addAggregation( self, name: str, fileList: Union[str,List[str]], **kwargs ):
         try:

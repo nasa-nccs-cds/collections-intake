@@ -2,7 +2,7 @@ import intake, os, pprint, warnings
 from intake.config import conf as iconf
 from intake.catalog.local import YAMLFileCatalog, Catalog
 from collection_intake.xintake.base import IntakeNode, pp, str_dict
-from collection_intake.xintake.collection import DataCollection
+from collection_intake.xintake.collection import DataCollectionGenerator
 from typing import List, Dict, Any, Sequence, BinaryIO, TextIO, ValuesView, Tuple, Optional, Union
 
 class CatalogNode(IntakeNode):
@@ -20,8 +20,8 @@ class CatalogNode(IntakeNode):
         print( f"Add Catalog: {self.catPath}" )
         return catNode
 
-    def addDataCollection(self, name: str, **kwargs ) -> "DataCollection":
-        collection: DataCollection =  DataCollection( self._path_nodes + [name], **kwargs )
+    def addDataCollection(self, name: str, **kwargs ) -> DataCollectionGenerator:
+        collection: DataCollectionGenerator =  DataCollectionGenerator(self._path_nodes + [name], **kwargs)
         self._catalog.add( collection.catalog )
-        print( f"Adding DataCollection: {self.catPath}" )
+        print( f"Adding DataCollectionGenerator: {self.catPath}" )
         return collection
