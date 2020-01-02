@@ -99,6 +99,7 @@ class DataCollectionGenerator(IntakeNode):
     def patch_yaml(self, file_path: str ):
         # Patch Intake bug.
         new_lines = []
+        print(f"    %%%% -->  PATCHING {file_path}")
         with open( file_path, 'r'  ) as f:
             for line in f.readlines():
                 new_lines.append( line.replace( 'parameters: []', 'parameters: {}') )
