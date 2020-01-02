@@ -7,7 +7,7 @@ image_entry: LocalCatalogEntry = collections.catalog.image
 print( image_entry.describe() )
 
 image: YAMLFileCatalog = image_entry.get()
-image.discover()
+print( image.discover() )
 
 print( "Elements:" )
 print( list( dict( image.items() ).keys() ) )
