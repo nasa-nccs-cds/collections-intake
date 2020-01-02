@@ -53,7 +53,7 @@ class IntakeNode(ABC):
         print( f"Opening catalog file: {file_uri}")
         self._catalog = intake.open_catalog( file_uri, driver="yaml_file_cat", autoreload=file_exists, name=self.name, **kwargs )
         if file_exists: self._catalog.discover()
-        self.save()
+        else: self.save()
 
     @property
     def catURI (self) -> str:
@@ -93,6 +93,17 @@ class IntakeNode(ABC):
         catUri = kwargs.get( 'catalog_uri', self.catURI )
         print( f"    %%%% -->  Catalog {self.name} saving to: {catUri}")
         self._catalog.save(catUri)
+        self.patch_yaml( catUri )
+
+    def patch_yaml(self, file_path: str ):
+        # Patch Intake bug.
+        new_lines = []
+        print(f"    %%%% -->  PATCHING {file_path}")
+        with open( file_path, 'r'  ) as f:
+            for line in f.readlines():
+                new_lines.append( line.replace( 'parameters: []', 'parameters: {}') )
+        with open( file_path, 'w' ) as f:
+            f.writelines( new_lines )
 
     @classmethod
     def setSourceAttr( cls, dataSource: DataSource, key: str, value: str):
