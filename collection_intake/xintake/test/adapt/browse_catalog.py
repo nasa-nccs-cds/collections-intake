@@ -4,8 +4,8 @@ from collection_intake.xintake.catalog import CatalogNode
 from collection_intake.xintake.manager import collections
 
 images: Catalog = collections.catalog.image
-print( images.discover() )
+print( images )
 
 print( "Elements:" )
 for item in images.items():
-    print( item.discover() )
+    print( item )
