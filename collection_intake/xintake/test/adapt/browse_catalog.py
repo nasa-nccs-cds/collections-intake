@@ -3,14 +3,12 @@ from intake.catalog.local import YAMLFileCatalog, YAMLFilesCatalog, Catalog, Loc
 from collection_intake.xintake.catalog import CatalogNode
 from collection_intake.xintake.manager import collections
 
-image = collections.catalog.image.get()
-print( image )
+image_entry: LocalCatalogEntry = collections.catalog.image
+image: Catalog = image_entry.get()
 
+print( image_entry.describe() )
 
-print( collections.catalog.__class__.__name__ )
-print( image.__class__.__name__ )
-
-
-# print( "Elements:" )
-# for item in image.el:
-#     print( item )
+print( "Elements:" )
+for item in image.items():
+    print( item.__class__.__name__ )
+    print( item )
