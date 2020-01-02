@@ -1,6 +1,6 @@
 import intake, os, pprint, warnings
 from intake.config import conf as iconf
-from intake.catalog.local import YAMLFileCatalog, Catalog
+from intake.catalog.local import YAMLFileCatalog, Catalog, LocalCatalogEntry
 from collection_intake.xintake.base import IntakeNode, pp, str_dict
 from collection_intake.xintake.collection import DataCollectionGenerator
 from typing import List, Dict, Any, Sequence, BinaryIO, TextIO, ValuesView, Tuple, Optional, Union
@@ -35,5 +35,5 @@ class CatalogNode(IntakeNode):
     def sources(self) -> List[str]:
         return list( self.catalog._entries.keys() )
 
-    def getSource( self, id: str ):
+    def getSource( self, id: str ) -> LocalCatalogEntry:
         return self.catalog._entries.get( id, None )
