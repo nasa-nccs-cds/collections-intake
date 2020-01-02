@@ -18,4 +18,11 @@ class CollectionsManager:
     def catalog(self) -> Catalog:
         return intake.open_catalog( self.catalog_path, driver="yaml_file_cat" )
 
+    @classmethod
+    def getCatalog(cls, cat_path: str ) -> Catalog:
+        return intake.open_catalog( CatalogNode.getCatalogURI( cat_path.split('/') ) )
+
 collections = CollectionsManager()
+
+
+
