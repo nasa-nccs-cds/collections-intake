@@ -1,4 +1,4 @@
-import intake
+import intake, time
 from intake.catalog.local import YAMLFileCatalog, Catalog, LocalCatalogEntry
 from collection_intake.xintake.catalog import CatalogNode
 from collection_intake.xintake.manager import collections
@@ -18,8 +18,10 @@ data_source: RasterIOSource =  ang_rdn_v2r2['ang_rdn_v2r2-99-2018-07-22_23-00-37
 dask_data_source: xa.DataArray = data_source.to_dask()
 print( f'dask_data_source, shape: {dask_data_source.shape}, dims: {dask_data_source.dims}'  )
 
-# dask_data_source.persist()
+t0 = time.time()
+dask_data_source.persist()
+t1 = time.time()
 
-# print( f'Completed reading array'  )
+print( f'Completed reading array in {t1-t0} secs'  )
 
 
