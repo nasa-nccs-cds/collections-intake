@@ -75,8 +75,9 @@ class DataCollectionGenerator(IntakeNode):
     def _createDataSource(self, name: str, files: Union[str,List[str]], **kwargs) -> DataSource:
         from intake.source import registry
         driver = kwargs.pop("driver", "netcdf")
-        dataSource = registry[ driver ]( files, **kwargs )
+        dataSource = registry[ driver ]( files,  **kwargs )
         dataSource.name = name
+        dataSource.parameters=dict()
         dataSource.discover()
         attrs = kwargs.get( "attrs", {} )
         for key, value in attrs.items(): self.setSourceAttr( dataSource, key, value)
