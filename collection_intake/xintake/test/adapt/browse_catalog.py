@@ -11,7 +11,7 @@ ang_rdn_v2r2: Catalog = collections.getCatalog( cat_path )
 
 print( f'Result: {ang_rdn_v2r2.discover()}'  )
 
-data_source =  ang_rdn_v2r2['ang_rdn_v2r2-99-2018-07-22_23-00-37']
+data_source =  ang_rdn_v2r2['ang_rdn_v2r2-99-2018-07-22_23-00-37'].get()
 
 print( f'Source Node: {cn(data_source)}'  )
 
