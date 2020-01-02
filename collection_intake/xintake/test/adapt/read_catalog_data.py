@@ -3,6 +3,10 @@ from dateutil.parser import parse
 
 catNode: CatalogNode = CatalogNode.open( "image/ABoVE/ORNL_AVIRIS_NG/ang_rdn_v2r2" )
 
-sources = dict( catNode.catalog.items() )
-print( sources.keys() )
+sources = catNode.sources
+
+source = catNode.getSource( sources[0] )
+
+
+print( source.__class__.__name__ )
 

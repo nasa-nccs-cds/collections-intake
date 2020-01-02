@@ -30,3 +30,10 @@ class CatalogNode(IntakeNode):
     def open(cls, catalog_path: str ) -> "CatalogNode":
         catalog_path: List[str] = catalog_path.split("/")
         return CatalogNode( catalog_path )
+
+    @property
+    def sources(self) -> List[str]:
+        return self.catalog._entries.keys()
+
+    def getSource( self, id: str ):
+        return self.catalog._entries.get( id, None )
