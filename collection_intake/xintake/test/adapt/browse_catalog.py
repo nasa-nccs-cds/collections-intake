@@ -10,7 +10,4 @@ image: YAMLFileCatalog = image_entry.get()
 print( image.discover() )
 
 print( "Elements:" )
-print( list( dict( image.items() ).keys() ) )
-
-above_entry = image.ABoVE
-print( above_entry.describe() )
+print( list( image ) )
