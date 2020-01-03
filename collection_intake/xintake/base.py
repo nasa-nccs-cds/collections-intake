@@ -62,14 +62,12 @@ class IntakeNode(ABC):
 
     def validate(self):
         updated = False
-        print(f" Validating {self.name} " )
         for id, item in list( self._catalog.items() ):
             if not isValid( item ):
                 self._catalog.pop(id)
                 print( f"Removing missing child link {id} from catalog node {self.name}")
                 updated = True
-        if updated: self.save()
-        else: print(f" Valid! " )
+        if updated: self.save( reload=False )
 
     @property
     def catURI (self) -> str:
@@ -105,7 +103,8 @@ class IntakeNode(ABC):
         self.close()
 
     def save( self, **kwargs ):
-        self._catalog.force_reload()
+        reload = kwargs.get( 'reload', True )
+        if reload: self._catalog.force_reload()
         catUri = kwargs.get( 'catalog_uri', self.catURI )
         print( f"    %%%% -->  Catalog {self.name} saving to: {catUri}")
         self._catalog.save(catUri)
