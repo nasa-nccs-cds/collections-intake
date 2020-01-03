@@ -67,7 +67,7 @@ class IntakeNode(ABC):
                 self._catalog.pop(id)
                 print( f"Removing missing child link {id} from catalog node {self.name}")
                 updated = True
-        if updated: self.save( reload=False )
+        if updated: self.save()
 
     @property
     def catURI (self) -> str:
@@ -103,7 +103,7 @@ class IntakeNode(ABC):
         self.close()
 
     def save( self, **kwargs ):
-        reload = kwargs.get( 'reload', True )
+        reload = kwargs.get( 'reload', False )
         if reload: self._catalog.force_reload()
         catUri = kwargs.get( 'catalog_uri', self.catURI )
         print( f"    %%%% -->  Catalog {self.name} saving to: {catUri}")
