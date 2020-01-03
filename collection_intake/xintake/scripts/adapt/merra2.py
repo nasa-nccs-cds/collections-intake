@@ -16,7 +16,7 @@ agg_dirs = glob( f"{collection_root}/*" )
 def createAggregation( agg_dir: str ):
     print( f"Adding aggregation data source to collection MERRA2-raw for data path {agg_dir}")
     dsname = os.path.basename(agg_dir)
-    cRaw.addAggregation( dsname, f"{agg_dir}/**/*.nc4", driver="netcdf", concat_dim="time", chunks={} )
+    cRaw.addAggregation( dsname, glob(f"{agg_dir}/*/*/*.nc4"), driver="netcdf", concat_dim="time", chunks={} )
 
 nproc = 2*mp.cpu_count()
 chunksize = math.ceil( len(agg_dirs) / nproc )
