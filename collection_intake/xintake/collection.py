@@ -1,4 +1,4 @@
-import intake, os, pprint, warnings
+import intake, os, pprint, warnings, traceback
 from intake.config import conf as iconf
 from intake.catalog.local import YAMLFilesCatalog, Catalog
 from collection_intake.xintake.base import IntakeNode, pp, str_dict
@@ -51,7 +51,7 @@ class DataCollectionGenerator(IntakeNode):
             self._createDataSource( name, fileList, **kwargs )
             if do_save(): self.save()
         except Exception as err:
-            print( f" ** Skipped loading the data file(s) {fileList}:\n     --> Due to Error: {err} ")
+            print( f" ** Skipped loading the data file(s) {fileList}:\n     --> Due to Error: {err}:\n{traceback.format_exc()}")
 
     def addAggregations(self, sources: Dict[str,List], **kwargs):
         for (source_name, fileGlobs) in sources.items():
