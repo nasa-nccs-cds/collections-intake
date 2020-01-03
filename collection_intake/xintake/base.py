@@ -62,12 +62,14 @@ class IntakeNode(ABC):
 
     def validate(self):
         updated = False
+        print(f" Validating {self.name} " )
         for id, item in list( self._catalog.items() ):
             if not isValid( item ):
                 self._catalog.pop(id)
                 print( f"Removing missing child link {id} from catalog node {self.name}")
                 updated = True
         if updated: self.save()
+        else: print(f" Valid! " )
 
     @property
     def catURI (self) -> str:

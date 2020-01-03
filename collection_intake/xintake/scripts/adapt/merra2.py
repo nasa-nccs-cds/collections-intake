@@ -14,7 +14,7 @@ collection_root = "/att/pubrepo/MERRA2/local/"
 agg_dirs = glob( f"{collection_root}/*" )
 
 def createAggregation( agg_dir: str ):
-    print( f"Adding aggregation data source to collection MERRA2-raw for data path {agg_dir}")
+    print( f"Adding aggregation data source to collection MERRA2-hourly for data path {agg_dir}")
     dsname = os.path.basename(agg_dir)
     cHourly.addAggregation( dsname, glob(f"{agg_dir}/*/*/*.nc4"), driver="netcdf", concat_dim="time", chunks={} )
 
