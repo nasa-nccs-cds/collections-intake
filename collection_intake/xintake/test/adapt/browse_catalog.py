@@ -23,10 +23,10 @@ with ClusterManager( cluster_parameters ) as clusterMgr:
     print( f'dask_data_source, shape: {dask_data_source.shape}, dims: {dask_data_source.dims}, chunks: {dask_data_source.chunks}'  )
 
     t0 = time.time()
-    dask_data_source.persist()
+    mean_val = dask_data_source.mean( dim='band' )
     t1 = time.time()
     dt = t1-t0
 
-    print( f'Completed reading array in {int(dt)} secs ( {dt/60.0} min )'  )
+    print( f'Completed computing mean over bands in {dt} secs ( {dt/60.0} min ), result shape = {mean_val.shape}'  )
 
 
