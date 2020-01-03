@@ -52,8 +52,17 @@ class IntakeNode(ABC):
         file_exists = os.path.isfile( file_uri )
         print( f"Opening catalog file: {file_uri}")
         self._catalog = intake.open_catalog( file_uri, driver="yaml_file_cat", autoreload=file_exists, name=self.name, **kwargs )
-        if file_exists: self._catalog.discover()
+        if file_exists: self.validate()
         else: self.save()
+
+    def validate(self):
+        updated = False
+        for id, item in list( self._catalog.items() ):
+            if not os.path.isfile(item.path):
+                self._catalog.pop(id)
+                print( f"Removing missing child link {id} from catalog node {self.name}")
+                updated = True
+        if updated: self.save()
 
     @property
     def catURI (self) -> str:
@@ -95,7 +104,8 @@ class IntakeNode(ABC):
         self._catalog.save(catUri)
         self.patch_yaml( catUri )
 
-    def patch_yaml(self, file_path: str ):
+    @classmethod
+    def patch_yaml(cls, file_path: str ):
         # Patch Intake bug.
         new_lines = []
         print(f"    %%%% -->  PATCHING {file_path}")

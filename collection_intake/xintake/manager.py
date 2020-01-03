@@ -1,12 +1,9 @@
 import intake, os, pprint
-from intake_xarray.netcdf import NetCDFSource
 from intake.config import conf as iconf
 from intake.catalog.local import YAMLFileCatalog, YAMLFilesCatalog, Catalog
 from collection_intake.xintake.base import IntakeNode, pp, str_dict
 from collection_intake.xintake.catalog import CatalogNode
 from typing import List, Dict, Any, Sequence, BinaryIO, TextIO, ValuesView, Tuple, Optional
-import xarray as xa
-from intake.source.base import DataSource
 
 # class Catalog()
 
@@ -21,6 +18,13 @@ class CollectionsManager:
     @classmethod
     def getCatalog(cls, cat_path: str ) -> Catalog:
         return intake.open_catalog( CatalogNode.getCatalogURI( cat_path.split('/') ) )
+
+    @classmethod
+    def saveCatalog(cls, catalog: Catalog ) -> str:
+        cat_path = catalog.path
+        catalog.save( cat_path )
+        IntakeNode.patch_yaml( cat_path )
+        return cat_path
 
 collections = CollectionsManager()
 
