@@ -49,7 +49,7 @@ class DataCollectionGenerator(IntakeNode):
             do_save = kwargs.pop( 'save', True )
             print(f"Adding Data Aggregation to catalog {self.name}:{name} ->  {summary(fileList)}")
             self._createDataSource( name, fileList, **kwargs )
-            if do_save(): self.save()
+            if do_save: self.save()
         except Exception as err:
             print( f" ** Skipped loading the data file(s) {fileList}:\n     --> Due to Error: {err}:\n{traceback.format_exc()}")
 
