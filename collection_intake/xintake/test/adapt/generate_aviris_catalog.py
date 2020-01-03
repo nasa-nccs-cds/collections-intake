@@ -14,7 +14,7 @@ def get_source_name( collection: str, index: int, fname: str ):
 collection_name = "ORNL_ABoVE_Airborne_AVIRIS_NG"
 collection_root = "/att/pubrepo/ABoVE/archived_data/ORNL/ABoVE_Airborne_AVIRIS_NG"
 aggregations = dict( ang_rdn_v2r2 = f"{collection_root}/data/ang*/ang*_rdn_v2r2/*_img" )
-chunks=dict( band=25 )
+chunks=dict( band=1 )
 
 base_cat: CatalogNode = CatalogNode.getCatalogBase()
 image_cat: CatalogNode = base_cat.addCatalogNode( "image", description="Remote sensing image collections" )
