@@ -2,6 +2,7 @@ import intake, time
 from intake.catalog.local import YAMLFileCatalog, Catalog, LocalCatalogEntry
 from collection_intake.xintake.catalog import CatalogNode
 from collection_intake.xintake.manager import collections
+import numpy as np
 from geoproc.cluster.manager import ClusterManager
 import xarray as xa
 from intake_xarray.raster import RasterIOSource
@@ -23,10 +24,11 @@ with ClusterManager( cluster_parameters ) as clusterMgr:
     print( f'dask_data_source, shape: {dask_data_source.shape}, dims: {dask_data_source.dims}, chunks: {dask_data_source.chunks}'  )
 
     t0 = time.time()
-    mean_val = dask_data_source.mean( dim='band' )
+    mean_val: xa.DataArray = dask_data_source.mean( dim='band' )
+    result: np.ndarray = mean_val.values
     t1 = time.time()
     dt = t1-t0
 
-    print( f'Completed computing mean over bands in {dt} secs ( {dt/60.0} min ), result shape = {mean_val.shape}'  )
+    print( f'Completed computing mean over bands in {dt} secs ( {dt/60.0} min ), result shape = {result.shape}'  )
 
 
