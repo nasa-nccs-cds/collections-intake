@@ -1,7 +1,8 @@
 import intake, os, pprint, warnings, abc
 from abc import ABC, abstractmethod
 from intake.config import conf as iconf
-from intake.catalog.local import Catalog
+from intake.catalog.local import Catalog, LocalCatalogEntry
+from intake.catalog.entry import CatalogEntry
 from intake.catalog.local import YAMLFileCatalog
 from intake.source.base import DataSource
 from glob import glob
@@ -16,6 +17,10 @@ def globs( fglobs: Union[str,List[str]] ) -> List[str]:
     for filesGlob in fglobList:
         fileList.extend( glob( filesGlob ) )
     return fileList
+
+def isValid( cat_entry: LocalCatalogEntry ) -> bool:
+    try:     return os.path.isfile( cat_entry.path )
+    except:  return False
 
 class IntakeNode(ABC):
     __metaclass__ = abc.ABCMeta
@@ -58,7 +63,7 @@ class IntakeNode(ABC):
     def validate(self):
         updated = False
         for id, item in list( self._catalog.items() ):
-            if not os.path.isfile(item.path):
+            if not isValid( item ):
                 self._catalog.pop(id)
                 print( f"Removing missing child link {id} from catalog node {self.name}")
                 updated = True
