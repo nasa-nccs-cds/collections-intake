@@ -51,7 +51,7 @@ class DataCollectionGenerator(IntakeNode):
             self._createDataSource( name, fileList, **kwargs )
             if do_save: self.save()
         except Exception as err:
-            print( f" ** Skipped loading the data file(s) {fileList}:\n     --> Due to Error: {err}:\n{traceback.format_exc()}")
+            print( f" ** Skipped loading the ggregation {name} with data file(s) {summary(fileList)}:\n     --> Due to Error: {err}:\n{traceback.format_exc()}")
 
     def addAggregations(self, sources: Dict[str,List], **kwargs):
         for (source_name, fileGlobs) in sources.items():
@@ -72,10 +72,11 @@ class DataCollectionGenerator(IntakeNode):
                 print( f" ** Skipped loading the data file {filePath}:\n     --> Due to Error: {err} ")
         if do_save: self.save()
 
-    def _createDataSource(self, name: str, files: Union[str,List[str]], **kwargs) -> DataSource:
+    def _createDataSource(self, name: str, filesGlob: Union[str,List[str]], **kwargs) -> DataSource:
         from intake.source import registry
         driver = kwargs.pop("driver", "netcdf")
-        dataSource = registry[ driver ]( files,  **kwargs )
+        files: List[str] = filesGlob if isinstance(filesGlob,list) else glob(filesGlob)
+        dataSource = registry[ driver ]( files.sort(),  **kwargs )
         dataSource.name = name
         dataSource.discover()
         attrs = kwargs.get( "attrs", {} )
