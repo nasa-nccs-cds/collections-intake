@@ -16,13 +16,14 @@ collection_root = "/nfs4m/css/curated01/create-ip/data/reanalysis"
 base_cat: CatalogNode = CatalogNode.getCatalogBase()
 cReanalysis = base_cat.addCatalogNode( "reanalysis", description="NCCS Reanalysis collections" )
 cCip = cReanalysis.addCatalogNode( "createIP", description="Reprocessed reanalyses for CreateIP" )
+agg_op_params = []
 
 def addCatNodes( baseNode: CatalogNode, curdir: str ):
     subDirs = [sdir for sdir in os.listdir(curdir) if path.isdir(path.join(curdir, sdir))]
     if len( set(subDirs).intersection( vars ) ) > 0:
         data_collection: DataCollectionGenerator = baseNode.addDataCollection(path.basename(curdir))
         for sDir in subDirs:
-            data_collection.addAggregation( sDir, f"{curdir}/{sDir}/*.nc", driver="netcdf", concat_dim="time", chunks={})
+            agg_op_params.append( dict( node=data_collection, name=sDir, files=f"{curdir}/{sDir}/*.nc" ) )
     else:
         node_name = path.basename( curdir )
         current_node = baseNode.addCatalogNodes(node_name)
@@ -32,6 +33,19 @@ def addCatNodes( baseNode: CatalogNode, curdir: str ):
 
 for collDir in glob(f"{collection_root}/*"):
     addCatNodes( cCip, collDir )
+
+def add_agg( params: Dict ):
+    params['node'].addAggregation( params['name'], params['files'], driver="netcdf", concat_dim="time", chunks={})
+
+t0 = time.time()
+nproc = 2*mp.cpu_count()
+chunksize = math.ceil( len(agg_op_params) / nproc )
+with Pool(processes=nproc) as pool:
+    pool.map( add_agg, agg_op_params, chunksize )
+
+print( f"Completed creating catalog in {(time.time()-t0)/60.0} minutes using {nproc} processes" )
+
+
 
 #
 # def addCatNode(baseNode: CatalogNode, curdir: str):
@@ -74,15 +88,5 @@ for collDir in glob(f"{collection_root}/*"):
 #             agg_name  = f"{col_name}-{path.basename(agg_path)}"
 #             agg_op_params.append( dict( node=dset_node, name=agg_name, files=f"{agg_path}/*.nc" ) )
 #
-# def add_agg( params: Dict ):
-#     params['node'].addAggregation( params['name'], params['files'], driver="netcdf", concat_dim="time", chunks={})
-#
-# t0 = time.time()
-# nproc = 2*mp.cpu_count()
-# chunksize = math.ceil( len(agg_op_params) / nproc )
-# with Pool(processes=nproc) as pool:
-#     pool.map( add_agg, agg_op_params, chunksize )
-#
-# print( f"Completed creating catalog in {(time.time()-t0)/60.0} minutes using {nproc} processes" )
-#
-#
+
+
