@@ -9,6 +9,7 @@ from intake_xarray.raster import RasterIOSource
 def cn( x ): return x.__class__.__name__
 def pcn( x ): print( x.__class__.__name__ )
 cluster_parameters = { "log.scheduler.metrics": False, 'type': 'slurm' }
+print( f"Intake drivers: {list(intake.registry)}" )
 
 with ClusterManager( cluster_parameters ) as clusterMgr:
 
