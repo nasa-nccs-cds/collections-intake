@@ -8,6 +8,7 @@ suffix = ".nc4"
 lines = []
 file_locations = []
 
+print( f"  Walking directory structure" )
 t0 = time.time()
 for root, dirs, files in os.walk( base_dir ):
    if len( files ) > 0:
