@@ -10,7 +10,14 @@ cImage = cBase.addCatalogNode( "image", description="NCCS Image collections" )
 cBioclim = cImage.addCatalogNode( "bioclim", description="" )
 
 collection_root = "/nfs4m/css/curated01/bioclim/data/"
-agg_dirs = glob( f"{collection_root}/*" )
+model_dirs = glob( f"{collection_root}/*" )
+
+aggs = {}
+for model_dir in model_dirs:
+    model_name = os.path.basename(model_dir)
+    for index in range(1,19):
+        files = glob( f"{model_dir}/bio{index}_equiv_*.tiff")
+        aggs[model_name]
 
 def createAggregation( agg_dir: str ):
     print( f"Adding aggregation data source to bioclim collection for data path {agg_dir}")
