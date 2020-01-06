@@ -29,7 +29,7 @@ t0 = time.time()
 nproc = 2*mp.cpu_count()
 chunksize = math.ceil( len(file_locations) / nproc )
 with Pool(processes=nproc) as pool:
-    pool.map( base_dirs, test_files, chunksize )
+    pool.map( test_files, base_dirs, chunksize )
 
 print( f"Completed test_files in {(time.time()-t0)/60.0} minutes using {nproc} processes" )
 
