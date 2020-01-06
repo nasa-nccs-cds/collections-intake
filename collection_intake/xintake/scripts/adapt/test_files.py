@@ -5,7 +5,7 @@ import multiprocessing as mp
 from glob import glob
 
 base_dirs = glob("/nfs4m/css/curated01/merra2/data/*")
-bad_files_name = f"/tmp/bad_files-merra2.csv"
+errors_file = f"/tmp/bad_files-merra2.csv"
 suffix = ".nc4"
 
 lines = []
@@ -13,7 +13,6 @@ def test_files( base_dir: str ):
     print( f"Walking file system from {base_dir}")
     for root, dirs, files in os.walk( base_dir ):
         if len(files) > 0:
-           print(".", end =" ")
            for fname in files:
                if fname.endswith(suffix):
                    file_path = os.path.join(root, fname)
@@ -25,16 +24,16 @@ def test_files( base_dir: str ):
 
 
 t0 = time.time()
-nproc = 2*mp.cpu_count()
+nproc = len(base_dirs) # 2*mp.cpu_count()
 with Pool(processes=nproc) as pool:
     pool.map( test_files, base_dirs )
 
 print( f"Completed test_files in {(time.time()-t0)/60.0} minutes using {nproc} processes" )
 
-bad_files = open(bad_files_name, "w")
+bad_files = open(errors_file, "w")
 bad_files.writelines(lines)
 bad_files.close()
-print( f"Wrote bad files list to {bad_files_name}, nfiles: {len(lines)}" )
+print( f"Wrote bad files list to {errors_file}, nfiles: {len(lines)}" )
 
 
 
