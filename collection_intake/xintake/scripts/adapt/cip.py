@@ -8,6 +8,7 @@ import multiprocessing as mp
 from os import path
 
 print( f"Intake drivers: {list(intake.registry)}" )
+vars = [ 'clivi', 'clt', 'clwvi', 'evspsbl', 'hfls', 'hfss', 'hur', 'hus', 'pr', 'prc', 'prsn', 'prw', 'ps', 'psl', 'rlds', 'rlus', 'rlut', 'rlutcs', 'rsds', 'rsdt', 'rsus', 'rsut', 'rsutcs', 'sfcWind', 'ta', 'tas', 'tauu', 'tauv', 'tro3', 'ts', 'ua', 'uas', 'va', 'vas', 'wap', 'zg' ]
 
 collection_name = "cip_merra2_mon"
 collection_root = "/nfs4m/css/curated01/create-ip/data/reanalysis"
@@ -17,9 +18,11 @@ cReanalysis = base_cat.addCatalogNode( "reanalysis", description="NCCS Reanalysi
 cCip = cReanalysis.addCatalogNode( "createIP", description="Reprocessed reanalyses for CreateIP" )
 
 def addCatNodes( baseNode: CatalogNode, curdir: str ):
-    if len( glob(f"{curdir}/*.nc") ) > 0 :
-        data_collection: DataCollectionGenerator = baseNode.addDataCollection( path.basename(curdir) )
-        data_collection.addAggregation( 'netcdf_files', f"{curdir}/*.nc", driver="netcdf", concat_dim="time", chunks={})
+    subDirs = [sdir for sdir in os.listdir(curdir) if path.isdir(path.join(curdir, sdir))]
+    if len( set(subDirs).intersection( vars ) ) > 0:
+        data_collection: DataCollectionGenerator = baseNode.addDataCollection(path.basename(curdir))
+        for sDir in subDirs:
+            data_collection.addAggregation( sDir, f"{curdir}/{sDir}/*.nc", driver="netcdf", concat_dim="time", chunks={})
     else:
         node_name = path.basename( curdir )
         current_node = baseNode.addCatalogNodes(node_name)
