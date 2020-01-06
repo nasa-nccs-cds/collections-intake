@@ -7,11 +7,10 @@ from multiprocessing import Pool
 import multiprocessing as mp
 from os import path
 
-print( f"Intake drivers: {list(intake.registry)}" )
-vars = [ 'clivi', 'clt', 'clwvi', 'evspsbl', 'hfls', 'hfss', 'hur', 'hus', 'pr', 'prc', 'prsn', 'prw', 'ps', 'psl', 'rlds', 'rlus', 'rlut', 'rlutcs', 'rsds', 'rsdt', 'rsus', 'rsut', 'rsutcs', 'sfcWind', 'ta', 'tas', 'tauu', 'tauv', 'tro3', 'ts', 'ua', 'uas', 'va', 'vas', 'wap', 'zg' ]
-
-collection_name = "cip_merra2_mon"
 collection_root = "/nfs4m/css/curated01/create-ip/data/reanalysis"
+vars = [ 'clivi', 'clt', 'clwvi', 'evspsbl', 'hfls', 'hfss', 'hur', 'hus', 'pr', 'prc', 'prsn', 'prw', 'ps', 'psl',
+         'rlds', 'rlus', 'rlut', 'rlutcs', 'rsds', 'rsdt', 'rsus', 'rsut', 'rsutcs', 'sfcWind', 'ta', 'tas', 'tauu',
+         'tauv', 'tro3', 'ts', 'ua', 'uas', 'va', 'vas', 'wap', 'zg' ]
 
 base_cat: CatalogNode = CatalogNode.getCatalogBase()
 cReanalysis = base_cat.addCatalogNode( "reanalysis", description="NCCS Reanalysis collections" )
