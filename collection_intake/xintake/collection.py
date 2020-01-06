@@ -76,7 +76,8 @@ class DataCollectionGenerator(IntakeNode):
         from intake.source import registry
         driver = kwargs.pop("driver", "netcdf")
         files: List[str] = filesGlob if isinstance(filesGlob,list) else glob(filesGlob)
-        dataSource = registry[ driver ]( files.sort(),  **kwargs )
+        files.sort()
+        dataSource = registry[ driver ]( files,  **kwargs )
         dataSource.name = name
         dataSource.discover()
         attrs = kwargs.get( "attrs", {} )
