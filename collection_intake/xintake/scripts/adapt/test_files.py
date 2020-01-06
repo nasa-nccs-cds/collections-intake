@@ -20,8 +20,8 @@ def test_files( base_dir: str ):
                    try:
                        ds = xarray.open_dataset(file_path)
                    except Exception as err:
-                       print(f"\n ** Found bad file {file_path}, err: {err}")
-                       lines.append( f"{file_path}, {err}" )
+                       print(f"{err}")
+                       lines.append( f"{err}" )
 
 
 t0 = time.time()
