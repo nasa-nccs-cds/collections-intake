@@ -7,13 +7,15 @@ from glob import glob
 base_dirs = glob("/nfs4m/css/curated01/merra2/data/*")
 bad_files_name = f"/tmp/bad_files-merra2.csv"
 suffix = ".nc4"
+print( base_dirs )
 
 file_locations = []
 lines = []
 
 def test_files( base_dir: str ):
+    print( f"Walking file system from {base_dir}")
     for root, dirs, files in os.walk( base_dir ):
-        if len(files ) > 0:
+        if len(files) > 0:
            print(".", end =" ")
            for fname in files:
                if fname.endswith(suffix):
