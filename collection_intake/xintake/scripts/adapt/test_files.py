@@ -7,11 +7,8 @@ from glob import glob
 base_dirs = glob("/nfs4m/css/curated01/merra2/data/*")
 bad_files_name = f"/tmp/bad_files-merra2.csv"
 suffix = ".nc4"
-print( base_dirs )
 
-file_locations = []
 lines = []
-
 def test_files( base_dir: str ):
     print( f"Walking file system from {base_dir}")
     for root, dirs, files in os.walk( base_dir ):
@@ -29,9 +26,8 @@ def test_files( base_dir: str ):
 
 t0 = time.time()
 nproc = 2*mp.cpu_count()
-chunksize = math.ceil( len(file_locations) / nproc )
 with Pool(processes=nproc) as pool:
-    pool.map( test_files, base_dirs, chunksize )
+    pool.map( test_files, base_dirs )
 
 print( f"Completed test_files in {(time.time()-t0)/60.0} minutes using {nproc} processes" )
 
