@@ -19,10 +19,10 @@ for dset_dir in glob( f"{collection_root}/{ecmwf_file_path1}/*" ):
     dset_name = path.basename(dset_dir)
     print( f"\n   ****> Adding dataset {dset_name} for path {dset_dir}")
     dset_node: DataCollectionGenerator = cECMWF.addDataCollection( dset_name  )
-    for col_path in glob( "dset_dir/*" ):
+    for col_path in glob( f"{dset_dir}/*" ):
         col_name  = path.basename(col_path)
-        for agg_path in glob( "dset_dir/*/*" ):
-            agg_name  = f"{col_path}-{path.basename(agg_path)}"
+        for agg_path in glob(  f"{col_path}/*" ):
+            agg_name  = f"{col_name}-{path.basename(agg_path)}"
             dset_node.addAggregation( agg_name, f"{agg_path}/*.nc", driver="netcdf", concat_dim="time", chunks={})
 
 
