@@ -64,7 +64,7 @@ class FileTester:
 
                            except Exception as err:
                                print(f"{err}")
-                               errors.append( f"{err}\n" )
+                               errors.append( f"{file_path}, {err}\n" )
 
             print( f"Walked file system from {base_dir}, found {good_files} good files, {len(errors)} bad files.")
 
