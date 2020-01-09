@@ -38,26 +38,32 @@ class FileTester:
         print( f"Wrote bad files list to {self._errors_file}, nfiles: {len(self._lines)}" )
 
     def _test_files( self, base_dir: str ):
-        print( f"Walking file system from {base_dir}")
-        for root, dirs, files in os.walk( base_dir ):
-            if len(files) > 0:
-               for fname in files:
-                   if fname.endswith( self._suffix ):
-                       file_path = os.path.join( root, fname )
-                       try:
-                           if self._engine == "rasterio":
-                               ds = xarray.open_rasterio( file_path )
-                           elif self._engine:
-                               ds = xarray.open_dataset( file_path, engine=self._engine )
-                           else:
-                               ds = xarray.open_dataset( file_path )
+        if not base_dir.endswith(".gz"):
+            good_files = 0
+            for root, dirs, files in os.walk( base_dir ):
+                if len(files) > 0:
+                   for fname in files:
+                       if fname.endswith( self._suffix ):
+                           file_path = os.path.join( root, fname )
+                           try:
+                               if self._engine == "rasterio":
+                                   ds = xarray.open_rasterio( file_path )
+                               elif self._engine:
+                                   ds = xarray.open_dataset( file_path, engine=self._engine )
+                               else:
+                                   ds = xarray.open_dataset( file_path )
 
-                           try:  ds.close()
-                           except Exception: pass
+                               try:  ds.close()
+                               except Exception: pass
 
-                       except Exception as err:
-                           print(f"{err}")
-                           self._lines.append( f"{err}" )
+                               good_files = good_files + 1
+
+                           except Exception as err:
+                               print(f"{err}")
+                               self._lines.append( f"{err}" )
+
+            print( f"Walked file system from {base_dir}, found {good_files} good files.")
+
 
 
 
