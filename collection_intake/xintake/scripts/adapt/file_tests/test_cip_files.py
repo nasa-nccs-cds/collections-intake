@@ -5,7 +5,7 @@ from collection_intake.util.fileTest import FileTester
 base_dirs = "/nfs4m/css/curated01/create-ip/data/reanalysis/*"
 suffix = ".nc"
 
-fileTester = FileTester( "aviris", suffix )
+fileTester = FileTester( "aviris", suffix, clean=True )
 
 fileTester.search( base_dirs )
 

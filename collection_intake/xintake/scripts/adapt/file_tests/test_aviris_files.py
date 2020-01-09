@@ -6,7 +6,7 @@ base_dirs = "/att/pubrepo/ABoVE/archived_data/ORNL/ABoVE_Airborne_AVIRIS_NG/data
 suffix = "_img"
 engine = "rasterio"
 
-fileTester = FileTester( "aviris", suffix, engine=engine )
+fileTester = FileTester( "aviris", suffix, engine=engine, clean=True )
 
 fileTester.search( base_dirs )
 

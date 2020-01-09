@@ -51,9 +51,9 @@ class FileTester:
                                if self._engine == "rasterio":
                                    ds = xarray.open_rasterio( file_path )
                                elif self._engine:
-                                   ds = xarray.open_dataset( file_path, engine=self._engine )
+                                   ds = xarray.open_dataset( file_path, engine=self._engine, decode_times=False, decode_coords=False )
                                else:
-                                   ds = xarray.open_dataset( file_path )
+                                   ds = xarray.open_dataset( file_path, decode_times=False, decode_coords=False )
 
                                try:  ds.close()
                                except Exception: pass
