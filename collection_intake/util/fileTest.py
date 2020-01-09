@@ -10,6 +10,7 @@ class FileTester:
         self._suffix = suffix
         self._engine = kwargs.get( 'engine' )
         self._name = name
+        self._verbose = kwargs.get( 'verbose', False)
         self._errors_file = f"/tmp/bad_files-{name}.csv"
         clean = kwargs.get( 'clean', False )
         if clean:
@@ -57,6 +58,8 @@ class FileTester:
                                except Exception: pass
 
                                good_files = good_files + 1
+                               if self._verbose:
+                                   print( f" OK: {file_path}" )
 
                            except Exception as err:
                                print(f"{err}")
