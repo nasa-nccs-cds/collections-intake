@@ -28,7 +28,7 @@ class FileTester:
         with Pool(processes=nproc) as pool:
             error_lists = pool.map( self._test_files, base_paths )
 
-        print( f"Completed test_files in {(time.time()-t0)/60.0} minutes using {nproc} processes" )
+        print( f"Completed test_files in {(time.time()-t0)/60.0} minutes using {nproc} processes"   )
 
         bad_files = open(self._errors_file, "w")
         error_count = 0
