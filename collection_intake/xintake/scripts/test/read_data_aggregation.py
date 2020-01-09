@@ -8,6 +8,6 @@ catalog_path = "reanalysis/MERRA/DAILY"
 agg_name = "DAILY"
 catalog_node: Catalog = collections.getCatalog(catalog_path )
 cat_entry: CatalogEntry = catalog_node[ agg_name ]
-data_source: DataSource = cat_entry.get( chunks=dict( time=1 ) )
+data_source: DataSource = cat_entry.get( ) # chunks=dict( time=1 ) )
 data_array: xa.DataArray = data_source.to_dask()
 print("DONE")
