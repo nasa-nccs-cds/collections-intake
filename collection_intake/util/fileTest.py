@@ -16,12 +16,9 @@ class FileTester:
         if clean:
             try: os.remove( self._errors_file )
             except: pass
-        self._lines = []
 
     def search(self, base_path_globs: Union[str,List[str]]):
         t0 = time.time()
-        self._lines = []
-
         if isinstance(base_path_globs, list):
             base_paths = sum([ glob(path_glob, recursive=True) for path_glob in base_path_globs], [])
         else:
@@ -29,16 +26,20 @@ class FileTester:
 
         nproc = 2*mp.cpu_count()
         with Pool(processes=nproc) as pool:
-            pool.map( self._test_files, base_paths )
+            error_lists = pool.map( self._test_files, base_paths )
 
         print( f"Completed test_files in {(time.time()-t0)/60.0} minutes using {nproc} processes" )
 
         bad_files = open(self._errors_file, "w")
-        bad_files.writelines( self._lines )
+        error_count = 0
+        for error_list in error_lists:
+            bad_files.writelines( error_list )
+            error_count = error_count + len( error_list )
         bad_files.close()
-        print( f"Wrote bad files list to {self._errors_file}, nfiles: {len(self._lines)}" )
+        print( f"Wrote bad files list to {self._errors_file}, nfiles: {error_count}" )
 
     def _test_files( self, base_dir: str ):
+        errors = []
         if not base_dir.endswith(".gz"):
             good_files = 0
             for root, dirs, files in os.walk( base_dir ):
@@ -63,9 +64,11 @@ class FileTester:
 
                            except Exception as err:
                                print(f"{err}")
-                               self._lines.append( f"{err}" )
+                               errors.append( f"{err}" )
 
             print( f"Walked file system from {base_dir}, found {good_files} good files.")
+
+        return errors
 
 
 
