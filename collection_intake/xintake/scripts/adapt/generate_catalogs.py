@@ -29,6 +29,10 @@ collection_specs1 = [
     { "uh-mitgcm_gecco2": "create-ip/data/reanalysis/University-Hamburg/MITgcm/GECCO2/*"}
 ]
 
+collection_specs2 = [
+    { "merra2": "/merra2/data/*" }
+]
+
 base_dirs = glob("/nfs4m/css/curated01/merra2/data/*")
 errors_file = f"/tmp/bad_files-merra2.csv"
 suffix = ".nc4"
