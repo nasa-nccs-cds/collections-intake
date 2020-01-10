@@ -5,7 +5,7 @@ import os, intake, math, time, glob
 data_dir = "/att/pubrepo/ILAB/projects/Birkett/"
 suffix = ".tif"
 driver = "rasterio"
-def get_name( filename: str ): return filename.split('_')[0]
+def get_name( agg_name, iFile, filePath ): return os.path.basename(filePath).split('_')[0]
 
 fileGlobs = f"{data_dir}/*{suffix}"
 cBase: CatalogNode = CatalogNode.getCatalogBase()
