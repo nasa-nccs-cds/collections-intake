@@ -1,0 +1,1 @@
+File tests can be found in the stratus_endpoints package.
