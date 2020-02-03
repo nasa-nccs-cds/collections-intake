@@ -15,7 +15,7 @@ with ClusterManager( cluster_parameters ) as clusterMgr:
     cat_path = 'reanalysis/MERRA2/hourly'
     print( f'Reading {cat_path}' )
     merra2_hourly: Catalog = collections.getCatalog( cat_path )
-    print( merra2_hourly.items().keys() )
+    print( [ k for k,v in merra2_hourly.items() ] )
 
     # print( f'Result: {ang_rdn_v2r2.discover()}'  )
     # chunks = dict( y=200 )
