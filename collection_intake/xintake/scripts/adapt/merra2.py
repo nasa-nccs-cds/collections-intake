@@ -25,3 +25,5 @@ with Pool(processes=nproc) as pool:
     pool.map( createAggregation, agg_dirs, chunksize )
 
 print( f"Completed creating catalog in {(time.time()-t0)/60.0} minutes using {nproc} processes" )
+
+

@@ -80,14 +80,14 @@ class DataCollectionGenerator(IntakeNode):
         chunks = kwargs.pop('chunks',{})
         dataSource = registry[ driver ]( files, chunks=chunks, **kwargs )
         dataSource.name = name
-        dataSource.discover()
         attrs = kwargs.get( "attrs", {} )
         for key, value in attrs.items(): self.setSourceAttr( dataSource, key, value)
         dataSource.metadata = str_dict( dataSource.metadata )
         source_file_uri = self.sourceUri( dataSource.name )
         dataSource.metadata['cat_file'] = source_file_uri
+        print(f"Generating dataSource yaml")
+        yaml = dataSource.yaml()
         with open(source_file_uri, 'w') as f:
-            yaml = dataSource.yaml()
             print(f"Writing dataSource {dataSource.name} to {source_file_uri}")
             f.write(yaml)
         return dataSource
