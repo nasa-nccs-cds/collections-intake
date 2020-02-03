@@ -10,12 +10,12 @@ def pcn( x ): print( x.__class__.__name__ )
 cluster_parameters = { "log.scheduler.metrics": False, 'type': 'slurm' }
 print( f"Intake drivers: {list(intake.registry)}" )
 
-with ClusterManager( cluster_parameters ) as clusterMgr:
+# with ClusterManager( cluster_parameters ) as clusterMgr:
 
-    cat_path = 'reanalysis/MERRA2/hourly'
-    print( f'Reading {cat_path}' )
-    merra2_hourly: Catalog = collections.getCatalog( cat_path )
-    print( [ k for k,v in merra2_hourly.items() ] )
+cat_path = 'reanalysis/MERRA2/hourly/M2T1NXLND.5.12.4'
+print( f'Reading {cat_path}' )
+merra2_hourly: Catalog = collections.getCatalog( cat_path )
+print( [ k for k,v in merra2_hourly.items() ] )
 
     # print( f'Result: {ang_rdn_v2r2.discover()}'  )
     # chunks = dict( y=200 )
