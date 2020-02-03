@@ -10,16 +10,16 @@ def cn( x ): return x.__class__.__name__
 def pcn( x ): print( x.__class__.__name__ )
 cluster_parameters = { "log.scheduler.metrics": False, 'type': 'slurm' }
 print( f"Intake drivers: {list(intake.registry)}" )
-chunks = dict( time=24 )
-with ClusterManager( cluster_parameters ) as clusterMgr:
+# chunks = dict( time=24 )
+#with ClusterManager( cluster_parameters ) as clusterMgr:
 
-    cat_path = 'reanalysis/MERRA2/hourly/'
-    print( f'Reading {cat_path}' )
-    merra2_hourly: Catalog = collections.getCatalog( cat_path )
+cat_path = 'reanalysis/MERRA2/hourly/'
+print( f'Reading {cat_path}' )
+merra2_hourly: Catalog = collections.getCatalog( cat_path )
 
-    data_source = merra2_hourly['M2T1NXLND.5.12.4'].to_dask() # .get( chunks=chunks )
+data_source = merra2_hourly['M2T1NXLND.5.12.4'].to_dask() # .get( chunks=chunks )
 
-    pcn( data_source )
+pcn( data_source )
 
 
     # print( f'Result: {ang_rdn_v2r2.discover()}'  )
