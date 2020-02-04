@@ -17,9 +17,11 @@ cat_path = 'reanalysis/MERRA2/hourly/'
 print( f'Reading {cat_path}' )
 merra2_hourly: Catalog = collections.getCatalog( cat_path )
 
-data_source = merra2_hourly['M2T1NXLND.5.12.4'].to_dask() # .get( chunks=chunks )
+data_source: NetCDFSource = merra2_hourly['M2T1NXLND.5.12.4']
 
-pcn( data_source )
+dask_source = data_source.to_dask() # .get( chunks=chunks )
+
+pcn( dask_source )
 
 
     # print( f'Result: {ang_rdn_v2r2.discover()}'  )
