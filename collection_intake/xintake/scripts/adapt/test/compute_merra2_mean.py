@@ -1,9 +1,4 @@
 import intake, time
-from intake.catalog.local import YAMLFileCatalog, Catalog, LocalCatalogEntry
-from collection_intake.xintake.catalog import CatalogNode
-from collection_intake.xintake.manager import collections
-from intake_xarray.netcdf import NetCDFSource
-import numpy as np
 from geoproc.cluster.manager import ClusterManager
 import xarray as xa
 from glob import glob
@@ -11,27 +6,19 @@ def cn( x ): return x.__class__.__name__
 def pcn( x ): print( x.__class__.__name__ )
 cluster_parameters = { "log.scheduler.metrics": False, 'type': 'slurm' }
 print( f"Intake drivers: {list(intake.registry)}" )
-chunks = dict( time=24 )
+# chunks = dict( time=24 )
 
-tt0 = time.time()
-data_file = "/att/pubrepo/MERRA2/local/M2T1NXLND.5.12.4/1982/08/MERRA2_100.tavg1_2d_lnd_Nx.19820814.nc4"
-dset0 = xa.open_dataset( data_file )
-tt1 = time.time()
-print(f"Completed open_dataset in {tt1 - tt0} secs")
-variable0 = dset0.TSAT
-tt2 = time.time()
-print( f"Completed accessing TSAT in {tt2-tt1} secs, shape = {variable0.shape}")
-
-files_path = "/att/pubrepo/MERRA2/local/M2T1NXLND.5.12.4/*/*/*.nc4"
-files = glob( files_path)
-t0 = time.time()
-print( f"Opening {len(files)} files from {files_path}")
-dset1 = xa.open_mfdataset( files )
-t1 = time.time()
-print( f"Completed open_mfdataset in {t1-t0} secs")
-variable1 = dset1.TSAT
-t2 = time.time()
-print( f"Completed accessing TSAT in {t2-t1} secs, shape = {variable1.shape}")
+with ClusterManager( cluster_parameters ) as clusterMgr:
+    files_path = "/att/pubrepo/MERRA2/local/M2T1NXLND.5.12.4/*/*/*.nc4"
+    files = glob( files_path)
+    t0 = time.time()
+    print( f"Opening {len(files)} files from {files_path}")
+    dset1 = xa.open_mfdataset( files )
+    t1 = time.time()
+    print( f"Completed open_mfdataset in {t1-t0} secs")
+    variable1 = dset1.TSAT
+    t2 = time.time()
+    print( f"Completed accessing TSAT in {t2-t1} secs, shape = {variable1.shape}")
 
 
 
