@@ -13,18 +13,24 @@ cluster_parameters = { "log.scheduler.metrics": False, 'type': 'slurm' }
 print( f"Intake drivers: {list(intake.registry)}" )
 chunks = dict( time=24 )
 
-with ClusterManager( cluster_parameters ) as clusterMgr:
-    files = glob( "/att/pubrepo/MERRA2/local/M2T1NXLND.5.12.4/*/*/*.nc4" )
-    t0 = time.time()
-    dset = xa.open_mfdataset( files, parallel=True )
-    t1 = time.time()
-    print( f"Completed open_mfdataset in {t1-t0} secs")
-    variable = dset.TSAT
-    t2 = time.time()
-    print( f"Completed TSAT in {t2-t1} secs, shape = {variable.shape}")
+t0 = time.time()
+data_file = "/att/pubrepo/MERRA2/local/M2T1NXLND.5.12.4/1982/08/MERRA2_100.tavg1_2d_lnd_Nx.19820814.nc4"
+dset = xa.open_dataset( data_file )
+t1 = time.time()
+print(f"Completed open_dataset in {t1 - t0} secs")
 
-
-
+# with ClusterManager( cluster_parameters ) as clusterMgr:
+#     files = glob( "/att/pubrepo/MERRA2/local/M2T1NXLND.5.12.4/*/*/*.nc4" )
+#     t0 = time.time()
+#     dset = xa.open_mfdataset( files, parallel=True )
+#     t1 = time.time()
+#     print( f"Completed open_mfdataset in {t1-t0} secs")
+#     variable = dset.TSAT
+#     t2 = time.time()
+#     print( f"Completed TSAT in {t2-t1} secs, shape = {variable.shape}")
+#
+#
+#
 
     # t0 = time.time()
     # cat_path = 'reanalysis/MERRA2/hourly/'
