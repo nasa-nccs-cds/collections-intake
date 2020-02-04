@@ -9,7 +9,7 @@ print( f"Intake drivers: {list(intake.registry)}" )
 # chunks = dict( time=24 )
 
 with ClusterManager( cluster_parameters ) as clusterMgr:
-    files_path = "/att/pubrepo/MERRA2/local/M2T1NXLND.5.12.4/*/*/*.nc4"
+    files_path = "/att/pubrepo/MERRA2/local/M2T1NXLND.5.12.4/2000/*/*.nc4"
     files = glob( files_path)
     t0 = time.time()
     print( f"Opening {len(files)} files from {files_path} using ClusterManager")
