@@ -13,17 +13,19 @@ print( f"Intake drivers: {list(intake.registry)}" )
 chunks = dict( time=24 )
 
 with ClusterManager( cluster_parameters ) as clusterMgr:
-
+    t0 = time.time()
     cat_path = 'reanalysis/MERRA2/hourly/'
-    print( f'Reading {cat_path}' )
+    print( f'Reading catalog from {cat_path}' )
     merra2_hourly: Catalog = collections.getCatalog( cat_path )
-
+    t1 = time.time()
+    print( f"Completed getCatalog in {t1-t0} secs")
     data_source: NetCDFSource = merra2_hourly['M2T1NXLND.5.12.4']
-
+    t2 = time.time()
+    print(f"Completed get NetCDFSource in {t2 - t1} secs")
     dask_source = data_source.to_dask() # .get( chunks=chunks )
-
+    t3 = time.time()
+    print(f"Completed get xarray in {t3 - t2} secs")
     pcn( dask_source )
-
 
     # print( f'Result: {ang_rdn_v2r2.discover()}'  )
     # chunks = dict( y=200 )
