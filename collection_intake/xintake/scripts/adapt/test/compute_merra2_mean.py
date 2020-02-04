@@ -22,9 +22,11 @@ variable0 = dset0.TSAT
 tt2 = time.time()
 print( f"Completed accessing TSAT in {tt2-tt1} secs, shape = {variable0.shape}")
 
-files = glob( "/att/pubrepo/MERRA2/local/M2T1NXLND.5.12.4/*/*/*.nc4" )
+files_path = "/att/pubrepo/MERRA2/local/M2T1NXLND.5.12.4/*/*/*.nc4"
+files = glob( files_path)
 t0 = time.time()
-dset1 = xa.open_mfdataset( files, parallel=True )
+print( f"Opening {len(files)} files from {files_path}")
+dset1 = xa.open_mfdataset( files )
 t1 = time.time()
 print( f"Completed open_mfdataset in {t1-t0} secs")
 variable1 = dset1.TSAT
