@@ -12,7 +12,7 @@ with ClusterManager( cluster_parameters ) as clusterMgr:
     files_path = "/att/pubrepo/MERRA2/local/M2T1NXLND.5.12.4/*/*/*.nc4"
     files = glob( files_path)
     t0 = time.time()
-    print( f"Opening {len(files)} files from {files_path}")
+    print( f"Opening {len(files)} files from {files_path} using ClusterManager")
     dset1 = xa.open_mfdataset( files )
     t1 = time.time()
     print( f"Completed open_mfdataset in {t1-t0} secs")
