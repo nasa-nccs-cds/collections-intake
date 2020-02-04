@@ -24,7 +24,7 @@ with ClusterManager( cluster_parameters ) as clusterMgr:
     print(f"Completed get NetCDFSource in {t2 - t1} secs")
     dask_source = data_source.to_dask() # .get( chunks=chunks )
     t3 = time.time()
-    print(f"Completed get xarray in {t3 - t2} secs")
+    print(f"Completed get xarray in {t3 - t2} secs, Completed operation in {t3-t0} secs")
     pcn( dask_source )
 
     # print( f'Result: {ang_rdn_v2r2.discover()}'  )
