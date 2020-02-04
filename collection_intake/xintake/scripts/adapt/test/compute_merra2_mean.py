@@ -13,9 +13,9 @@ with ClusterManager( cluster_parameters ) as clusterMgr:
     files = glob( files_path)
     t0 = time.time()
     print( f"Opening {len(files)} files from {files_path} using ClusterManager" )
-    dset1 = xa.open_mfdataset( files, combine='by_coords' )  # parallel = True
+    dset1 = xa.open_mfdataset( files, combine='by_coords', parallel = True )
     t1 = time.time()
-    print( f"Completed open_mfdataset in {t1-t0} secs  ")
+    print( f"Completed open_mfdataset in {(t1-t0)/60.0} mins  ")
     variable1 = dset1.TSAT
     t2 = time.time()
     print( f"Completed accessing TSAT in {t2-t1} secs, shape = {variable1.shape}" )
